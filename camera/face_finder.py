@@ -1,3 +1,5 @@
+from time import time
+
 import cv2
 import cv2.data
 import numpy as np
@@ -32,6 +34,10 @@ def face_finder() -> None:
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     )
+
+    start_time = time()
+    frame_count = 0
+    fps = 10.01
     prev_rect = None
 
     while _key() != "Q":
@@ -58,6 +64,21 @@ def face_finder() -> None:
             cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 4)
 
         prev_rect = current_rect
+
+        frame_count += 1
+        if frame_count % 30 == 0:
+            end_time = time()
+            fps = 30 / (end_time - start_time)
+            start_time = time()
+        cv2.putText(
+            frame,
+            f"FPS: {fps:.1f}",
+            (100, 200),
+            cv2.FONT_HERSHEY_SIMPLEX,
+            1.9,
+            (0, 255, 0),
+            2,
+        )
         cv2.imshow("Face Finder", frame)
 
     cap.release()
