@@ -2,8 +2,8 @@
 name = "ml-2026"
 version = "0.1.0"
 dependencies = [
-    "pandas >= 2.3",
-    "pre-commit >= 4.2",
-    "requests >= 2.32",
+    "pandas",
+    "pre-commit",
+    "requests",
 ]
 requires-python = ">= 3.13"
