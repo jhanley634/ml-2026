@@ -15,6 +15,7 @@ def _order_by_size(rectangle: NDArray[np.int32]) -> int:
     return int(r[3])
 
 
+SMOOTH_FRAC = 0.02
 MAX_MOVE = 10
 MAX_FACES = 2
 VIOLET = (255, 0, 255)  # BGR
@@ -40,10 +41,23 @@ def face_finder() -> None:
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = np.array(face_cascade.detectMultiScale(gray, 1.1, 4))
         faces2 = sorted(faces, reverse=True, key=_order_by_size)[:MAX_FACES]
+        if len(faces2) == 0:
+            continue
 
-        for x, y, w, h in faces2:
+        x2, y2, w2, h2 = current_rect = faces2[0]
+
+        if prev_rect is not None:
+            x1, y1, w1, h1 = prev_rect
+
+            # Smooth the movement of the rectangle
+            x = int(x1 + SMOOTH_FRAC * (x2 - x1))
+            y = int(y1 + SMOOTH_FRAC * (y2 - y1))
+            w = int(w1 + SMOOTH_FRAC * (w2 - w1))
+            h = int(h1 + SMOOTH_FRAC * (h2 - h1))
+
             cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 4)
 
+        prev_rect = current_rect
         cv2.imshow("Face Finder", frame)
 
     cap.release()
