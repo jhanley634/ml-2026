@@ -11,13 +11,12 @@ def _key() -> str:
 def _order_by_size(rectangle: NDArray[np.int32]) -> int:
     r = rectangle
     assert r.shape == (4,)  # x, y, w, h
-    assert r.dtype == np.dtype(np.int32)
     assert r[2] == r[3]
     return int(r[3])
 
 
+MAX_MOVE = 10
 MAX_FACES = 2
-
 VIOLET = (255, 0, 255)  # BGR
 
 
@@ -32,6 +31,7 @@ def face_finder() -> None:
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     )
+    prev_rect = None
 
     while _key() != "Q":
         ret, frame = cap.read()
