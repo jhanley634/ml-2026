@@ -1,9 +1,22 @@
 [project]
 name = "ml-2026"
 version = "0.1.0"
+readme = "ReadMe.md"
+requires-python = ">= 3.13"
+
 dependencies = [
     "pandas",
-    "pre-commit",
     "requests",
 ]
-requires-python = ">= 3.13"
+[dependency-groups]
+dev = [
+    "black",
+    "isort",
+    "mypy",
+    "pre-commit",
+    "pyright",
+    "ruff",
+]
+
+[tool.uv]
+default-groups = ["dev"]

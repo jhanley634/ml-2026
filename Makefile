@@ -25,14 +25,6 @@ lint: ruff-check
 	$(ACTIVATE) && mypy $(STRICT) .
 	$(ACTIVATE) && isort .
 
-docker-build: clean-caches
-	rm -rf .venv/
-	docker buildx build --tag $(PROJECT) .
-docker-run:
-	docker run -v .:/tmp/ml-2025 -p 8000:8000 -it $(PROJECT)
-
-
-
 test:
 	$(ACTIVATE) && python -m unittest */*_test.py
 
@@ -42,4 +34,4 @@ clean-caches:
 clean: clean-caches
 	rm -rf .venv/
 
-.PHONY: all install ruff-check lint mypy docker-build docker-run lab nb notebook test clean-caches clean .venv
+.PHONY: all .venv install ruff-check lint test clean-caches clean
