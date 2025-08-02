@@ -10,7 +10,7 @@ def _key() -> str:
     return chr(cv2.waitKey(1) & 0xFF).upper()
 
 
-def _order_by_size(rectangle: NDArray[np.int32]) -> int:
+def order_by_size(rectangle: NDArray[np.int32]) -> int:
     r = rectangle
     assert r.shape == (4,)  # x, y, w, h
     assert r[2] == r[3]
@@ -46,7 +46,7 @@ def face_finder() -> None:
         frame = cv2.flip(frame, 1)
         gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
         faces = np.array(face_cascade.detectMultiScale(gray, 1.1, 4))
-        faces2 = sorted(faces, reverse=True, key=_order_by_size)[:MAX_FACES]
+        faces2 = sorted(faces, reverse=True, key=order_by_size)[:MAX_FACES]
         if len(faces2) == 0:
             continue
 
