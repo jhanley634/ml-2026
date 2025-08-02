@@ -6,7 +6,13 @@ import numpy as np
 from numpy._typing import NDArray
 
 
-def _key() -> str:
+def open_camera() -> cv2.VideoCapture:
+    cap = cv2.VideoCapture(0)
+    assert cap.isOpened()
+    return cap
+
+
+def key() -> str:
     return chr(cv2.waitKey(1) & 0xFF).upper()
 
 
@@ -28,20 +34,16 @@ def face_finder() -> None:
     Draws a violet bounding box around the single face in the captured camera image.
     """
 
-    cap = cv2.VideoCapture(0)
-    assert cap
-    assert cap.isOpened()
-
+    cap = open_camera()
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
     )
-
     start_time = time()
     frame_count = 0
     fps = 10.01
     prev_rect = None
 
-    while _key() != "Q":
+    while key() != "Q":
         ret, frame = cap.read()
         assert ret
         frame = cv2.flip(frame, 1)

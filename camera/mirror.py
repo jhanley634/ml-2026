@@ -2,7 +2,7 @@
 
 import cv2
 
-from camera.face_finder import _key, face_finder
+from camera.face_finder import face_finder, key, open_camera
 
 
 def mirror() -> None:
@@ -10,10 +10,9 @@ def mirror() -> None:
     On a 14 inch MacBook Pro, pops up a window and displays what the laptop camera sees, in B&W.
     """
 
-    cap = cv2.VideoCapture(0)
-    assert cap
+    cap = open_camera()
 
-    while _key() != "Q":
+    while key() != "Q":
         ret, frame = cap.read()
         assert ret
         frame = cv2.flip(frame, 1)
