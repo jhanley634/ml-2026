@@ -37,7 +37,7 @@ def face_finder() -> None:
 
     cap = open_camera()
     face_cascade = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
+        f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml"
     )
     start_time = time()
     frame_count = 0
