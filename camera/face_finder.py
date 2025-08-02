@@ -30,6 +30,7 @@ def face_finder() -> None:
 
     cap = cv2.VideoCapture(0)
     assert cap
+    assert cap.isOpened()
 
     face_cascade = cv2.CascadeClassifier(
         cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
