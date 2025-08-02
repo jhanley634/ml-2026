@@ -6,6 +6,23 @@ import numpy as np
 from numpy._typing import NDArray
 
 
+class FPSCounter:
+    def __init__(self, samples: int = 30):
+        self.samples = samples
+        self.start = time()
+        self.count = 0
+        self.fps = 10.0
+
+    def update(self) -> float:
+        self.count += 1
+        if self.count >= self.samples:
+            now = time()
+            self.fps = self.samples / (now - self.start)
+            self.start = now
+            self.count = 0
+        return self.fps
+
+
 def open_camera() -> cv2.VideoCapture:
     cap = cv2.VideoCapture(0)
     assert cap.isOpened()
@@ -19,7 +36,7 @@ def key() -> str:
 def order_by_size(rectangle: NDArray[np.int32]) -> int:
     r = rectangle
     assert r.shape == (4,)  # x, y, w, h
-    assert r[2] == r[3]
+    assert r[2] == r[3], r
     return int(r[3])
 
 
@@ -27,7 +44,9 @@ SMOOTH_FRAC = 0.02
 MAX_MOVE = 10
 MAX_FACES = 2
 VIOLET = (255, 0, 255)  # BGR
+GREEN = (0, 255, 0)
 FRAME_INTERVAL = 30  # we do 10 FPS, so recompute FPS every three seconds or so
+FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
 def face_finder() -> None:
@@ -39,8 +58,7 @@ def face_finder() -> None:
     face_cascade = cv2.CascadeClassifier(
         f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml"
     )
-    start_time = time()
-    frame_count = 0
+    fps_counter = FPSCounter()
     fps = 10.01
     prev_rect = None
 
@@ -68,20 +86,8 @@ def face_finder() -> None:
 
             prev_rect = current_rect
 
-        frame_count += 1
-        if frame_count % FRAME_INTERVAL == 0:
-            end_time = time()
-            fps = FRAME_INTERVAL / (end_time - start_time)
-            start_time = time()
-        cv2.putText(
-            frame,
-            f"FPS: {fps:.1f}",
-            (100, 200),
-            cv2.FONT_HERSHEY_SIMPLEX,
-            1.9,
-            (0, 255, 0),
-            2,
-        )
+        fps = fps_counter.update()
+        cv2.putText(frame, f"FPS: {fps:.1f}", (100, 200), FONT, 1.9, GREEN, 2)
         cv2.imshow("Face Finder", frame)
 
     cap.release()
