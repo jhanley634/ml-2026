@@ -27,6 +27,7 @@ SMOOTH_FRAC = 0.02
 MAX_MOVE = 10
 MAX_FACES = 2
 VIOLET = (255, 0, 255)  # BGR
+FRAME_INTERVAL = 30  # we do 10 FPS, so recompute FPS every three seconds or so
 
 
 def face_finder() -> None:
@@ -68,9 +69,9 @@ def face_finder() -> None:
             prev_rect = current_rect
 
         frame_count += 1
-        if frame_count % 30 == 0:
+        if frame_count % FRAME_INTERVAL == 0:
             end_time = time()
-            fps = 30 / (end_time - start_time)
+            fps = FRAME_INTERVAL / (end_time - start_time)
             start_time = time()
         cv2.putText(
             frame,
