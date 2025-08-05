@@ -1,4 +1,5 @@
 use opencv::{
+    Error as CvError,
     core::{AlgorithmHint, Mat, flip},
     highgui::{destroy_all_windows, imshow, wait_key},
     imgproc::{ColorConversionCodes, cvt_color},
@@ -6,7 +7,29 @@ use opencv::{
     videoio::VideoCapture,
 };
 
-pub fn mirror() -> Result<(), Box<dyn std::error::Error>> {
+#[derive(Debug)]
+pub enum MirrorError {
+    CvError(CvError),
+}
+
+impl std::error::Error for MirrorError {}
+
+impl std::fmt::Display for MirrorError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            MirrorError::CvError(err) => write!(f, "CvError: {err}"),
+        }
+    }
+}
+
+// for the `?` operator
+impl From<CvError> for MirrorError {
+    fn from(err: CvError) -> Self {
+        MirrorError::CvError(err)
+    }
+}
+
+pub fn mirror() -> Result<(), MirrorError> {
     println!("Hit 'q' to quit");
 
     let mut cap = VideoCapture::new(0, 0)?;
