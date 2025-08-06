@@ -86,28 +86,27 @@ pub fn mirror() -> Result<(), MirrorError> {
             break;
         }
 
-        // Convert to grayscale
+        let mut flipped_frame = Mat::default();
+        flip(&frame, &mut flipped_frame, 1)?; // horizontally
+
         let mut gray = Mat::default();
         cvt_color(
-            &frame,
+            &flipped_frame,
             &mut gray,
             ColorConversionCodes::COLOR_BGR2GRAY as i32,
             0,
             AlgorithmHint::ALGO_HINT_DEFAULT,
         )?;
 
-        let mut flipped_frame = Mat::default();
-        flip(&gray, &mut flipped_frame, 1)?; // horizontally
-
         let text = fps_tracker.get_text(font, color, thickness);
         let mut base_line = 0;
         let text_size = get_text_size(&text, font, 1.0, 0, &mut base_line).unwrap();
         let text_origin = (
-            flipped_frame.cols() - text_size.width as i32 - 10,
-            flipped_frame.rows() - text_size.height as i32 - 10,
+            gray.cols() - text_size.width as i32 - 10,
+            gray.rows() - text_size.height as i32 - 10,
         );
         put_text(
-            &mut flipped_frame,
+            &mut gray,
             &text,
             Point::new(text_origin.0, text_origin.1),
             font,
@@ -118,7 +117,7 @@ pub fn mirror() -> Result<(), MirrorError> {
             false,
         )?;
 
-        imshow("Mirror", &flipped_frame)?;
+        imshow("Mirror", &gray)?;
 
         let key = wait_key(1)?;
         if key == 'q' as i32 {
