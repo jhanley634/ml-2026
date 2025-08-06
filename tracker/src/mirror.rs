@@ -103,13 +103,14 @@ pub fn mirror() -> Result<(), MirrorError> {
 
     let frame_width = cap.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
     let frame_height = cap.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
+    let is_mono = cap.get(videoio::CAP_PROP_MONOCHROME)? == 0.;
 
     let mut writer = VideoWriter::new(
         "/tmp/output.avi",
         videoio::VideoWriter::fourcc('M', 'P', 'E', 'G')?,
         10.0,
         Size::new(frame_width, frame_height),
-        true,
+        is_mono,
     )?;
 
     let font = HersheyFonts::FONT_HERSHEY_SIMPLEX as i32;
