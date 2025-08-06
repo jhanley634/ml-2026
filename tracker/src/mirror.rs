@@ -26,14 +26,14 @@ impl From<opencv::Error> for MirrorError {
     }
 }
 
-pub struct FPS {
+pub struct Fps {
     frame_count: u64,
     start_time: std::time::Instant,
 }
 
-impl FPS {
+impl Fps {
     pub fn new() -> Self {
-        FPS {
+        Fps {
             frame_count: 0,
             start_time: std::time::Instant::now(),
         }
@@ -53,7 +53,7 @@ impl FPS {
 
     pub fn get_text(&self, font: i32, color: Scalar, thickness: f32) -> String {
         let fps = self.calculate_fps();
-        format!("FPS: {:.1}", fps)
+        format!("FPS: {fps:.1}")
     }
 }
 
@@ -77,7 +77,7 @@ pub fn mirror() -> Result<(), MirrorError> {
     let color = Scalar::new(0.0, 255.0, 0.0, 0.0);
     let thickness: f32 = 2.0;
 
-    let mut fps_tracker = FPS::new();
+    let mut fps_tracker = Fps::new();
 
     loop {
         let mut frame = Mat::default();
@@ -103,8 +103,8 @@ pub fn mirror() -> Result<(), MirrorError> {
         let mut base_line = 0;
         let text_size = get_text_size(&text, font, 1.0, 0, &mut base_line).unwrap();
         let text_origin = (
-            flipped_frame.cols() as i32 - text_size.width as i32 - 10,
-            flipped_frame.rows() as i32 - text_size.height as i32 - 10,
+            flipped_frame.cols() - text_size.width as i32 - 10,
+            flipped_frame.rows() - text_size.height as i32 - 10,
         );
         put_text(
             &mut flipped_frame,
