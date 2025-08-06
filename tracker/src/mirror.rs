@@ -51,7 +51,7 @@ impl Fps {
         (self.frame_count as f32) / duration.as_secs_f32()
     }
 
-    pub fn get_text(&self, font: i32, color: Scalar, thickness: f32) -> String {
+    pub fn get_text(&self, _font: i32, _color: Scalar, _thickness: f32) -> String {
         let fps = self.calculate_fps();
         format!("FPS: {fps:.1}")
     }
@@ -62,15 +62,15 @@ pub fn mirror() -> Result<(), MirrorError> {
 
     let mut cap = VideoCapture::new(0, 0)?;
 
-    let frame_width = 640;
-    let frame_height = 480;
+    let frame_width = cap.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
+    let frame_height = cap.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
 
     let mut writer = VideoWriter::new(
         "/tmp/output.avi",
         videoio::VideoWriter::fourcc('M', 'P', 'E', 'G')?,
         10.0,
         Size::new(frame_width, frame_height),
-        false,
+        true,
     )?;
 
     let font = HersheyFonts::FONT_HERSHEY_SIMPLEX as i32;
@@ -126,7 +126,7 @@ pub fn mirror() -> Result<(), MirrorError> {
         }
 
         fps_tracker.update();
-        writer.write(&flipped_frame)?;
+        writer.write(&frame)?;
     }
 
     cap.release()?;
