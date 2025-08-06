@@ -26,6 +26,7 @@ impl From<opencv::Error> for MirrorError {
     }
 }
 
+#[derive(Debug, Clone, Copy)]
 pub struct Fps {
     frame_count: u64,
     start_time: std::time::Instant,
@@ -57,6 +58,44 @@ impl Fps {
     }
 }
 
+#[derive(Debug)]
+pub struct FpsWriter {
+    font: i32,
+    color: Scalar,
+    thickness: f32,
+}
+
+impl FpsWriter {
+    pub fn new(font: i32, color: Scalar, thickness: f32) -> Self {
+        FpsWriter {
+            font,
+            color,
+            thickness,
+        }
+    }
+
+    pub fn write_fps(&self, gray: &mut Mat, fps: Fps) -> Result<(), opencv::Error> {
+        let text = fps.get_text(self.font, self.color, self.thickness);
+        let mut base_line = 0;
+        let text_size = get_text_size(&text, self.font, 1.0, 0, &mut base_line).unwrap();
+        let text_origin = (
+            gray.cols() - text_size.width as i32 - 10,
+            gray.rows() - text_size.height as i32 - 10,
+        );
+        put_text(
+            gray,
+            &text,
+            Point::new(text_origin.0, text_origin.1),
+            self.font,
+            1.0,
+            self.color,
+            self.thickness.round() as i32,
+            self.font,
+            false,
+        )
+    }
+}
+
 pub fn mirror() -> Result<(), MirrorError> {
     println!("Hit 'q' to quit");
 
@@ -78,6 +117,7 @@ pub fn mirror() -> Result<(), MirrorError> {
     let thickness: f32 = 2.0;
 
     let mut fps_tracker = Fps::new();
+    let fps_writer = FpsWriter::new(font, color, thickness);
 
     loop {
         let mut frame = Mat::default();
@@ -98,24 +138,7 @@ pub fn mirror() -> Result<(), MirrorError> {
             AlgorithmHint::ALGO_HINT_DEFAULT,
         )?;
 
-        let text = fps_tracker.get_text(font, color, thickness);
-        let mut base_line = 0;
-        let text_size = get_text_size(&text, font, 1.0, 0, &mut base_line).unwrap();
-        let text_origin = (
-            gray.cols() - text_size.width as i32 - 10,
-            gray.rows() - text_size.height as i32 - 10,
-        );
-        put_text(
-            &mut gray,
-            &text,
-            Point::new(text_origin.0, text_origin.1),
-            font,
-            1.0,
-            color,
-            thickness.round() as i32,
-            font,
-            false,
-        )?;
+        fps_writer.write_fps(&mut gray, fps_tracker)?;
 
         imshow("Mirror", &gray)?;
 
@@ -125,7 +148,7 @@ pub fn mirror() -> Result<(), MirrorError> {
         }
 
         fps_tracker.update();
-        writer.write(&frame)?;
+        writer.write(&flipped_frame)?;
     }
 
     cap.release()?;
