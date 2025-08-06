@@ -12,7 +12,11 @@ fmt:
 	cargo clippy
 
 install:
-	brew install llvm opencv
+	brew install llvm rust opencv
+	cargo install flamegraph
+
+profile:
+	cargo flamegraph
 
 clean:
 	cargo clean
