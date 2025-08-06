@@ -1,14 +1,8 @@
-use opencv::core::Point;
-use opencv::imgproc::HersheyFonts::FONT_HERSHEY_SIMPLEX;
-use opencv::imgproc::get_text_size;
-use opencv::videoio::VideoWriter;
-use opencv::{
-    core::{AlgorithmHint, Mat, Scalar, Size, flip},
-    highgui::{destroy_all_windows, imshow, wait_key},
-    imgproc::{ColorConversionCodes, cvt_color, put_text},
-    prelude::*,
-    videoio::VideoCapture,
-};
+use opencv::core::{AlgorithmHint, Mat, Point, Scalar, Size, flip};
+use opencv::highgui::{destroy_all_windows, imshow, wait_key};
+use opencv::imgproc::{ColorConversionCodes, HersheyFonts, cvt_color, get_text_size, put_text};
+use opencv::prelude::*;
+use opencv::videoio::{self, VideoCapture, VideoWriter};
 
 #[derive(Debug)]
 pub enum MirrorError {
@@ -32,6 +26,37 @@ impl From<opencv::Error> for MirrorError {
     }
 }
 
+pub struct FPS {
+    frame_count: u64,
+    start_time: std::time::Instant,
+}
+
+impl FPS {
+    pub fn new() -> Self {
+        FPS {
+            frame_count: 0,
+            start_time: std::time::Instant::now(),
+        }
+    }
+
+    pub fn update(&mut self) {
+        self.frame_count += 1;
+    }
+
+    pub fn calculate_fps(&self) -> f32 {
+        let duration = self.start_time.elapsed();
+        if duration.as_secs_f32() == 0.0 {
+            return 0.0;
+        }
+        (self.frame_count as f32) / duration.as_secs_f32()
+    }
+
+    pub fn get_text(&self, font: i32, color: Scalar, thickness: f32) -> String {
+        let fps = self.calculate_fps();
+        format!("FPS: {:.1}", fps)
+    }
+}
+
 pub fn mirror() -> Result<(), MirrorError> {
     println!("Hit 'q' to quit");
 
@@ -42,19 +67,17 @@ pub fn mirror() -> Result<(), MirrorError> {
 
     let mut writer = VideoWriter::new(
         "/tmp/output.avi",
-        opencv::videoio::VideoWriter::fourcc('M', 'P', 'E', 'G')?,
+        videoio::VideoWriter::fourcc('M', 'P', 'E', 'G')?,
         10.0,
         Size::new(frame_width, frame_height),
         false,
     )?;
 
-    let font = FONT_HERSHEY_SIMPLEX as i32;
+    let font = HersheyFonts::FONT_HERSHEY_SIMPLEX as i32;
     let color = Scalar::new(0.0, 255.0, 0.0, 0.0);
     let thickness: f32 = 2.0;
-    let fps = 29.8;
 
-    let mut frame_count = 0;
-    let start_time = std::time::Instant::now();
+    let mut fps_tracker = FPS::new();
 
     loop {
         let mut frame = Mat::default();
@@ -76,11 +99,11 @@ pub fn mirror() -> Result<(), MirrorError> {
         let mut flipped_frame = Mat::default();
         flip(&gray, &mut flipped_frame, 1)?; // horizontally
 
-        let text = format!("FPS: {fps:.1}");
+        let text = fps_tracker.get_text(font, color, thickness);
         let mut base_line = 0;
         let text_size = get_text_size(&text, font, 1.0, 0, &mut base_line).unwrap();
         let text_origin = (
-            flipped_frame.cols() - text_size.width as i32 - 10,
+            flipped_frame.cols() as i32 - text_size.width as i32 - 10,
             flipped_frame.rows() as i32 - text_size.height as i32 - 10,
         );
         put_text(
@@ -101,13 +124,14 @@ pub fn mirror() -> Result<(), MirrorError> {
         if key == 'q' as i32 {
             break;
         }
-        frame_count += 1;
 
+        fps_tracker.update();
         writer.write(&flipped_frame)?;
     }
 
     cap.release()?;
     destroy_all_windows()?;
     writer.release()?;
+
     Ok(())
 }
