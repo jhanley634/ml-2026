@@ -56,7 +56,7 @@ def face_finder() -> None:
 
     cap = open_camera()
     face_cascade = cv2.CascadeClassifier(
-        f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml"
+        f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
     )
     fps_counter = FPSCounter()
     fps = 10.01

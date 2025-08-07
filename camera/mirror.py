@@ -1,8 +1,12 @@
 #! /usr/bin/env python
 
+import unicodedata
+
 import cv2
 
-from camera.face_finder import FONT, GREEN, FPSCounter, key, open_camera
+from camera.face_finder import FONT, GREEN, FPSCounter, face_finder, key, open_camera
+
+assert face_finder
 
 
 def mirror() -> None:
@@ -32,7 +36,8 @@ def mirror() -> None:
         cv2.putText(frame, f"FPS: {fps:.1f}", (w - 400, h - 60), FONT, 1.9, GREEN, 2)
         cv2.imshow("Mirror", frame)
 
-    print(f"{w} × {h}")
+    mul = unicodedata.lookup("MULTIPLICATION SIGN")  # 00d7
+    print(f"{w} {mul} {h}")
 
     cap.release()
     cv2.destroyAllWindows()
