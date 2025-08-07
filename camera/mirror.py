@@ -2,7 +2,7 @@
 
 import cv2
 
-from camera.face_finder import face_finder, key, open_camera
+from camera.face_finder import FONT, GREEN, FPSCounter, key, open_camera
 
 
 def mirror() -> None:
@@ -11,6 +11,9 @@ def mirror() -> None:
     """
 
     cap = open_camera()
+    fps_counter = FPSCounter()
+    fps = 10.01
+
     w, h = 0, 0
     want_gray = True
 
@@ -24,8 +27,10 @@ def mirror() -> None:
         if want_gray:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
+        h, w, *_ = frame.shape
+        fps = fps_counter.update()
+        cv2.putText(frame, f"FPS: {fps:.1f}", (w - 400, h - 60), FONT, 1.9, GREEN, 2)
         cv2.imshow("Mirror", frame)
-        h, w = frame.shape
 
     print(f"{w} × {h}")
 
