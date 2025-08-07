@@ -42,7 +42,7 @@ def key() -> str:
 def order_by_size(rectangle: NDArray[np.int32]) -> int:
     r = rectangle
     assert r.shape == (4,)  # x, y, w, h
-    assert r[2] == r[3], r
+    assert r[2] == r[3], r  # square
     return int(r[3])
 
 
@@ -79,8 +79,9 @@ def face_detection_thread(stop_event: Event) -> None:
     while not stop_event.is_set():
         try:
             frame = frame_queue.get(timeout=1)  # Wait for a frame
-            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(gray_frame, 1.1, 4)
+            if len(frame.shape) == 3:  # (w, h, 3)
+                frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(frame, 1.1, 4)
             faces2 = np.array(faces)
             faces3 = sorted(faces2, reverse=True, key=order_by_size)[:MAX_FACES]
 

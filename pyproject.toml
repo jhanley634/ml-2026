@@ -51,6 +51,9 @@ select = [
     "LOG", "N", "NPY", "PD", "PERF", "PIE", "PL", "PTH", "PYI", "Q",
     "RET", "RSE", "RUF", "SIM", "SLF", "SLOT", "TCH", "TID", "TRY", "UP", "W", "YTT",
 ]
+ignore = [
+    "PLR2004",
+]
 
 [tool.ruff.lint.flake8-annotations]
 mypy-init-return = true
