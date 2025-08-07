@@ -1,4 +1,10 @@
+import contextlib
+import queue
+from dataclasses import dataclass
+from queue import Queue
+from threading import Event, Thread
 from time import time
+from typing import Any
 
 import cv2
 import cv2.data
@@ -49,18 +55,63 @@ FRAME_INTERVAL = 30  # we do 10 FPS, so recompute FPS every three seconds or so
 FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
-def face_finder() -> None:
+# Queue to hold frames for face detection
+frame_queue: Queue[Any] = Queue(maxsize=2)  # Limit queue size to avoid excessive memory usage
+
+
+@dataclass
+class Foo:
+    smoothed_rect: tuple[int, int, int, int] | None = None
+
+
+d = Foo()
+
+
+def face_detection_thread(stop_event: Event) -> None:
     """
-    Draws a violet bounding box around the single face in the captured camera image.
+    Background thread for face detection.  Processes frames from the queue.
     """
 
-    cap = open_camera()
     face_cascade = cv2.CascadeClassifier(
         f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
     )
-    fps_counter = FPSCounter()
-    fps = 10.01
     prev_rect = None
+    while not stop_event.is_set():
+        try:
+            frame = frame_queue.get(timeout=1)  # Wait for a frame
+            gray_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+            faces = face_cascade.detectMultiScale(gray_frame, 1.1, 4)
+            faces2 = np.array(faces)
+            faces3 = sorted(faces2, reverse=True, key=order_by_size)[:MAX_FACES]
+
+            if len(faces3) > 0:
+                current_rect = faces3[0]
+                if prev_rect is not None:
+                    smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
+                    x, y, w, h = np.round(prev_rect + smoothed).astype(int)
+                    d.smoothed_rect = (x, y, w, h)
+                prev_rect = current_rect
+
+            frame_queue.task_done()
+        except queue.Empty:
+            # No frame available, continue to next iteration
+            pass
+
+
+def face_finder() -> None:
+    """
+    Main function to capture camera frames, display them, and draw bounding boxes.
+    Uses a background thread for face detection.
+    """
+
+    cap = open_camera()
+    fps_counter = FPSCounter()
+    stop_event = Event()  # Event to signal thread termination
+
+    # Start the face detection thread
+    detection_thread = Thread(target=face_detection_thread, args=(stop_event,))
+    detection_thread.daemon = True  # Allow the program to exit even if the thread is running
+    detection_thread.start()
     want_gray = False
 
     while (k := key()) != "Q":
@@ -72,21 +123,21 @@ def face_finder() -> None:
         frame = cv2.flip(frame, 1)
         if want_gray:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = np.array(face_cascade.detectMultiScale(frame, 1.1, 4))
-        faces2 = sorted(faces, reverse=True, key=order_by_size)[:MAX_FACES]
-        if len(faces2) > 0:
-            current_rect = faces2[0]
 
-            if prev_rect is not None:
-                smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
-                x, y, w, h = np.round(prev_rect + smoothed).astype(int)
-                cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 4)
-
-            prev_rect = current_rect
+        with contextlib.suppress(queue.Full):
+            frame_queue.put(frame, block=False)  # Non-blocking put
 
         fps = fps_counter.update()
         cv2.putText(frame, f"FPS: {fps:.1f}", (100, 200), FONT, 1.9, GREEN, 2)
-        cv2.imshow("Face Finder", frame)
+        if d.smoothed_rect:
+            x, y, w, h = d.smoothed_rect
+            cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 2)
 
+        cv2.imshow("Face Finder", frame)
+        d.smoothed_rect = None  # reset the var, so only the newest rectangle is being drawn
+
+    # Signal the thread to stop
+    stop_event.set()
     cap.release()
     cv2.destroyAllWindows()
+    frame_queue.join()  # Wait for task_done() calls to complete before exiting
