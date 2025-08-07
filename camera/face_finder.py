@@ -60,11 +60,11 @@ frame_queue: Queue[Any] = Queue(maxsize=2)  # Limit queue size to avoid excessiv
 
 
 @dataclass
-class Foo:
-    smoothed_rect: tuple[int, int, int, int] | None = None
+class SmoothedRect:
+    rect: tuple[int, int, int, int] | None = None
 
 
-d = Foo()
+smooth = SmoothedRect()
 
 
 def face_detection_thread(stop_event: Event) -> None:
@@ -89,7 +89,7 @@ def face_detection_thread(stop_event: Event) -> None:
                 if prev_rect is not None:
                     smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
                     x, y, w, h = np.round(prev_rect + smoothed).astype(int)
-                    d.smoothed_rect = (x, y, w, h)
+                    smooth.rect = (x, y, w, h)
                 prev_rect = current_rect
 
             frame_queue.task_done()
@@ -129,12 +129,12 @@ def face_finder() -> None:
 
         fps = fps_counter.update()
         cv2.putText(frame, f"FPS: {fps:.1f}", (100, 200), FONT, 1.9, GREEN, 2)
-        if d.smoothed_rect:
-            x, y, w, h = d.smoothed_rect
+        if smooth.rect:
+            x, y, w, h = smooth.rect
             cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 2)
 
         cv2.imshow("Face Finder", frame)
-        d.smoothed_rect = None  # reset the var, so only the newest rectangle is being drawn
+        smooth.rect = None  # reset the var, so only the newest rectangle is being drawn
 
     # Signal the thread to stop
     stop_event.set()
