@@ -11,20 +11,29 @@ def mirror() -> None:
     """
 
     cap = open_camera()
+    w, h = 0, 0
+    want_gray = True
 
-    while key() != "Q":
+    while (k := key()) != "Q":
+        if k == "G":
+            want_gray = bool(1 - want_gray)  # toggle
+
         ret, frame = cap.read()
         assert ret
         frame = cv2.flip(frame, 1)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if want_gray:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
 
-        cv2.imshow("Mirror", gray)
+        cv2.imshow("Mirror", frame)
+        h, w = frame.shape
+
+    print(f"{w} × {h}")
 
     cap.release()
     cv2.destroyAllWindows()
 
 
 if __name__ == "__main__":
-    print("Hit Q to quit")
+    print("Hit G to toggle grayscale, or Q to quit")
     face_finder()
     # mirror()

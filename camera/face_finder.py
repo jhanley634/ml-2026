@@ -61,13 +61,18 @@ def face_finder() -> None:
     fps_counter = FPSCounter()
     fps = 10.01
     prev_rect = None
+    want_gray = False
 
-    while key() != "Q":
+    while (k := key()) != "Q":
+        if k == "G":
+            want_gray = bool(1 - want_gray)  # toggle
+
         ret, frame = cap.read()
         assert ret
         frame = cv2.flip(frame, 1)
-        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-        faces = np.array(face_cascade.detectMultiScale(gray, 1.1, 4))
+        if want_gray:
+            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        faces = np.array(face_cascade.detectMultiScale(frame, 1.1, 4))
         faces2 = sorted(faces, reverse=True, key=order_by_size)[:MAX_FACES]
         if len(faces2) > 0:
             current_rect = faces2[0]
