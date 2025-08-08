@@ -9,7 +9,7 @@ from typing import Any
 import cv2
 import cv2.data
 import numpy as np
-from numpy._typing import NDArray
+from numpy.typing import NDArray
 
 
 class FPSCounter:
