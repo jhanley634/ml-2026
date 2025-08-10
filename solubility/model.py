@@ -19,29 +19,6 @@ def model() -> None:
     train = df[:test_idx]
     test = df[test_idx:]
 
-    print(train[["Group", "Solubility"]].describe())
-    print(
-        train.drop(
-            labels=[
-                "NumHAcceptors",
-                "NumHDonors",
-                "NumHeteroatoms",
-                "NumRotatableBonds",
-                "NumValenceElectrons",
-                "NumAromaticRings",
-                "NumSaturatedRings",
-                "NumAliphaticRings",
-                "RingCount",
-                "Ocurrences",
-                "TPSA",
-                "LabuteASA",
-                "BalabanJ",
-                "BertzCT",
-            ],
-            axis="columns",
-        )
-    )
-
 
 if __name__ == "__main__":
     model()
