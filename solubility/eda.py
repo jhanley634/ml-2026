@@ -17,7 +17,7 @@ def get_solubility_df() -> pd.DataFrame:
     return pd.read_csv(csv)
 
 
-def produce_profile() -> None:
+def create_profile() -> None:
     profile = ProfileReport(
         get_solubility_df(),
         title="Solubility Profiling Report",
@@ -28,4 +28,4 @@ def produce_profile() -> None:
 
 
 if __name__ == "__main__":
-    produce_profile()
+    create_profile()
