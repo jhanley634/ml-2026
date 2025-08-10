@@ -1,8 +1,17 @@
 #! /usr/bin/env python
 
+import matplotlib.pyplot as plt
+import numpy as np
 import pandas as pd
+import seaborn as sns
+import xgboost as xgb
+from numpy.typing import NDArray
+from sklearn.metrics import mean_absolute_error, mean_squared_error
+from sklearn.model_selection import train_test_split
 
 from solubility.eda import get_solubility_df
+
+SEED = 42
 
 
 def shuffle(df: pd.DataFrame) -> pd.DataFrame:
@@ -10,14 +19,44 @@ def shuffle(df: pd.DataFrame) -> pd.DataFrame:
 
 
 def model() -> None:
-    text_cols = ["Name", "InChI", "InChIKey", "SMILES"]
+    text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
     df = shuffle(get_solubility_df())
     df = df.drop(labels=text_cols, axis="columns")
-
+    print(df.dtypes)
     assert len(df) == 9_982, len(df)
-    test_idx = int(0.8 * len(df))
-    train = df[:test_idx]
-    test = df[test_idx:]
+
+    x = df.drop("Solubility", axis="columns")
+    y = df["Solubility"]
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+    y_test = np.array(y_test, dtype=np.float64)
+
+    model = xgb.XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
+    model.fit(x_train, y_train)
+
+    y_pred = model.predict(x_test)
+
+    print("RMSE:", mean_squared_error(y_test, y_pred))
+    print("MAE: ", mean_absolute_error(y_test, y_pred))
+    plot(y_test, y_pred)
+
+
+def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
+
+    plt.figure(figsize=(10, 6))
+    sns.scatterplot(x=y_test, y=y_pred, label="Predictions vs. Actual")
+    plt.xlabel("Actual Solubility")
+    plt.ylabel("Predicted Solubility")
+    plt.title("XGBoost Solubility Prediction")
+    plt.legend()
+    plt.show()
+
+    plt.figure(figsize=(10, 6))
+    sns.histplot(y_test - y_pred, bins=20, kde=True)
+    plt.xlabel("Residuals")
+    plt.ylabel("Frequency")
+    plt.title("Residual Plot")
+    plt.show()
 
 
 if __name__ == "__main__":
