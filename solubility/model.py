@@ -1,5 +1,7 @@
 #! /usr/bin/env python
 
+from pathlib import Path
+
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -8,6 +10,7 @@ import xgboost as xgb
 from numpy.typing import NDArray
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
+from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
 
@@ -18,11 +21,13 @@ def shuffle(df: pd.DataFrame) -> pd.DataFrame:
     return df.sample(frac=1, random_state=42)
 
 
-def model() -> None:
+pd.options.display.float_format = "{:.3f}".format
+
+
+def create_model(*, want_charts: bool = False) -> None:
     text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
     df = shuffle(get_solubility_df())
     df = df.drop(labels=text_cols, axis="columns")
-    print(df.dtypes)
     assert len(df) == 9_982, len(df)
 
     x = df.drop("Solubility", axis="columns")
@@ -38,7 +43,32 @@ def model() -> None:
 
     print("RMSE:", mean_squared_error(y_test, y_pred))
     print("MAE: ", mean_absolute_error(y_test, y_pred))
-    plot(y_test, y_pred)
+
+    feature_names = x.columns
+    imp_series = pd.Series(
+        data=model.feature_importances_,
+        index=feature_names,
+    )
+    imp_df = imp_series.to_frame(name="Importance")
+    imp_df = imp_df.sort_values(by="Importance", ascending=False)
+    with pd.option_context("display.float_format", "{:.3f}".format):
+        print("\nTop Feature Importances:")
+        print(imp_df.head(4))
+    plot_tree(model)
+
+    if want_charts:
+        plot(y_test, y_pred)
+
+
+TMP = Path("/tmp")
+
+
+def plot_tree(
+    model: XGBRegressor,
+    out_file: Path = TMP / "tree.pdf",
+) -> None:
+    xgb.plot_tree(model, tree_idx=0)
+    plt.savefig(out_file)
 
 
 def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
@@ -60,4 +90,4 @@ def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
 
 
 if __name__ == "__main__":
-    model()
+    create_model()
