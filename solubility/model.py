@@ -11,6 +11,7 @@ import xgboost as xgb
 from numpy.typing import NDArray
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
+from sklearn.neural_network import MLPRegressor
 from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
@@ -42,10 +43,36 @@ def create_model(*, want_charts: bool = False) -> None:
 
     y_pred = model.predict(x_test)
 
-    print("RMSE:", mean_squared_error(y_test, y_pred))
-    print("MAE: ", mean_absolute_error(y_test, y_pred))
+    print("XGB RMSE:", round(mean_squared_error(y_test, y_pred), 4))
+    print("XGB MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+
+    create_mlp_model(df)
 
     show_importance(model, x.columns)
+
+    if want_charts:
+        plot(y_test, y_pred)
+
+
+def create_mlp_model(df: pd.DataFrame, *, want_charts: bool = False) -> None:
+    text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
+    df = shuffle(get_solubility_df())
+    df = df.drop(labels=text_cols, axis="columns")
+    assert len(df) == 9_982, len(df)
+
+    x = df.drop("Solubility", axis="columns").to_numpy()
+    y = df["Solubility"].to_numpy()
+
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+    y_test = np.array(y_test, dtype=np.float64)
+
+    mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
+    mlp_model.fit(x_train, y_train)
+
+    y_pred = np.array(mlp_model.predict(x_test), dtype=np.float64)
+
+    print("MLP RMSE:", round(mean_squared_error(y_test, y_pred), 4))
+    print("MLP MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
 
     if want_charts:
         plot(y_test, y_pred)
