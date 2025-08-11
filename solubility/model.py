@@ -2,6 +2,7 @@
 
 from pathlib import Path
 
+import matplotlib as mpl
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
@@ -36,7 +37,7 @@ def create_model(*, want_charts: bool = False) -> None:
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
     y_test = np.array(y_test, dtype=np.float64)
 
-    model = xgb.XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
+    model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
     model.fit(x_train, y_train)
 
     y_pred = model.predict(x_test)
@@ -63,12 +64,31 @@ def create_model(*, want_charts: bool = False) -> None:
 TMP = Path("/tmp")
 
 
+def _set_high_res_font_params() -> None:
+    mpl.rcParams.update(
+        {
+            "font.size": 12,
+            "axes.titlesize": 14,
+            "axes.labelsize": 12,
+            "xtick.labelsize": 10,
+            "ytick.labelsize": 10,
+            "legend.fontsize": 12,
+            "xtick.major.size": 5,
+            "ytick.major.size": 5,
+        },
+    )
+
+
 def plot_tree(
     model: XGBRegressor,
     out_file: Path = TMP / "tree.pdf",
+    *,
+    dpi: int = 1800,
+    figsize: tuple[float, float] = (12, 8),
 ) -> None:
-    xgb.plot_tree(model, tree_idx=0)
-    plt.savefig(out_file)
+    _set_high_res_font_params()
+    fig = xgb.plot_tree(model, tree_idx=0, figsize=figsize)
+    plt.savefig(out_file, dpi=dpi, bbox_inches="tight")
 
 
 def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
