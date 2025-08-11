@@ -70,14 +70,10 @@ def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = Fa
 
     svm_model.fit(x_train, y_train.ravel())
 
-    y_pred = np.array(svm_model.predict(x_test), dtype=np.float64)
-
-    print()
-    print("SVM RMSE:", round(mean_squared_error(y_test, y_pred), 4))
-    print("SVM MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+    _evaluate_error("SVM", svm_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, y_pred)
+        plot(y_test, svm_model.predict(x_test))
 
 
 def create_mlp_model(
@@ -89,19 +85,18 @@ def create_mlp_model(
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
     scaler = StandardScaler()
-    x_train = scaler.fit_transform(x_train)
-    x_test = scaler.transform(x_test)
+    x_train = np.array(scaler.fit_transform(x_train))
+    x_test = np.array(scaler.transform(x_test))
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
+    print("\nfit start")
     mlp_model.fit(x_train, y_train)
+    print("\nfit done\n")
 
-    y_pred = np.array(mlp_model.predict(x_test), dtype=np.float64)
-    print()
-    print("MLP RMSE:", round(mean_squared_error(y_test, y_pred), 4))
-    print("MLP MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+    _evaluate_error("MLP", mlp_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, y_pred)
+        plot(y_test, np.array(mlp_model.predict(x_test)))
 
 
 def create_xgb_model(
@@ -111,16 +106,16 @@ def create_xgb_model(
     want_charts: bool = False,
 ) -> XGBRegressor:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
-    y_test = np.array(y_test, dtype=np.float64)
+    y_test = np.array(y_test)
 
-    model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
-    model.fit(x_train, y_train)
-    _evaluate_error("XGB", model, x_test, y_test)
+    xgb_model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
+    xgb_model.fit(x_train, y_train)
+    _evaluate_error("XGB", xgb_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, model.predict(x_test))
+        plot(y_test, xgb_model.predict(x_test))
 
-    return model
+    return xgb_model
 
 
 def show_importance(
@@ -141,7 +136,7 @@ def show_importance(
 
 def _evaluate_error(
     label: str,
-    model: XGBRegressor,
+    model: MLPRegressor | SVR | XGBRegressor,
     x_test: NDArray[np.float64],
     y_test: NDArray[np.float64],
 ) -> None:
