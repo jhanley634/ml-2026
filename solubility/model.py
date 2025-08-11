@@ -45,7 +45,16 @@ def create_model(*, want_charts: bool = False) -> None:
     print("RMSE:", mean_squared_error(y_test, y_pred))
     print("MAE: ", mean_absolute_error(y_test, y_pred))
 
-    feature_names = x.columns
+    show_importance(model, x.columns)
+
+    if want_charts:
+        plot(y_test, y_pred)
+
+
+def show_importance(
+    model: XGBRegressor,
+    feature_names: pd.Index,
+) -> None:
     imp_series = pd.Series(
         data=model.feature_importances_,
         index=feature_names,
@@ -56,9 +65,6 @@ def create_model(*, want_charts: bool = False) -> None:
         print("\nTop Feature Importances:")
         print(imp_df.head(4))
     plot_tree(model)
-
-    if want_charts:
-        plot(y_test, y_pred)
 
 
 TMP = Path("/tmp")
