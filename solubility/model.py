@@ -16,6 +16,7 @@ from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
 
+TEST = 0.2  # hold out 20% of rows for evaluation after training
 SEED = 42
 
 
@@ -23,19 +24,23 @@ def shuffle(df: pd.DataFrame) -> pd.DataFrame:
     return df.sample(frac=1, random_state=42)
 
 
-pd.options.display.float_format = "{:.3f}".format
-
-
-def create_model(*, want_charts: bool = False) -> None:
+def create_models() -> None:
     text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
     df = shuffle(get_solubility_df())
     df = df.drop(labels=text_cols, axis="columns")
     assert len(df) == 9_982, len(df)
 
     x = df.drop("Solubility", axis="columns")
-    y = df["Solubility"]
+    y = pd.Series(df["Solubility"])
 
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+    xgb_model = create_xgb_model(x, y)
+    show_importance(xgb_model, x.columns)
+
+    create_mlp_model(x, y)
+
+
+def create_xgb_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> XGBRegressor:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
     y_test = np.array(y_test, dtype=np.float64)
 
     model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
@@ -46,24 +51,14 @@ def create_model(*, want_charts: bool = False) -> None:
     print("XGB RMSE:", round(mean_squared_error(y_test, y_pred), 4))
     print("XGB MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
 
-    create_mlp_model(df)
-
-    show_importance(model, x.columns)
-
     if want_charts:
         plot(y_test, y_pred)
 
+    return model
 
-def create_mlp_model(df: pd.DataFrame, *, want_charts: bool = False) -> None:
-    text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
-    df = shuffle(get_solubility_df())
-    df = df.drop(labels=text_cols, axis="columns")
-    assert len(df) == 9_982, len(df)
 
-    x = df.drop("Solubility", axis="columns").to_numpy()
-    y = df["Solubility"].to_numpy()
-
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=0.2, random_state=SEED)
+def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> None:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
     y_test = np.array(y_test, dtype=np.float64)
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
@@ -141,4 +136,4 @@ def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
 
 
 if __name__ == "__main__":
-    create_model()
+    create_models()
