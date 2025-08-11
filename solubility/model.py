@@ -115,14 +115,10 @@ def create_xgb_model(
 
     model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
     model.fit(x_train, y_train)
-
-    y_pred = model.predict(x_test)
-    print()
-    print("XGB RMSE:", round(mean_squared_error(y_test, y_pred), 4))
-    print("XGB MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+    _evaluate_error("XGB", model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, y_pred)
+        plot(y_test, model.predict(x_test))
 
     return model
 
@@ -141,6 +137,18 @@ def show_importance(
         print("\nTop Feature Importances:")
         print(imp_df.head(4))
     plot_tree(model)
+
+
+def _evaluate_error(
+    label: str,
+    model: XGBRegressor,
+    x_test: NDArray[np.float64],
+    y_test: NDArray[np.float64],
+) -> None:
+    y_pred = model.predict(x_test)
+    print()
+    print(label, "RMSE:", round(mean_squared_error(y_test, y_pred), 4))
+    print(label, "MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
 
 
 def _set_high_res_font_params() -> None:
