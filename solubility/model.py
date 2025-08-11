@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env YDATA_SUPPRESS_BANNER=1 python
 
 from pathlib import Path
 
