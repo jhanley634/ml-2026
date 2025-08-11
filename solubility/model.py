@@ -12,6 +12,7 @@ from numpy.typing import NDArray
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
+from sklearn.preprocessing import StandardScaler
 from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
@@ -66,6 +67,13 @@ def create_mlp_model(
     want_charts: bool = False,
 ) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
+
+    scaler = StandardScaler()
+    x_train = scaler.fit_transform(x_train)
+    x_test = scaler.transform(x_test)
+
+    y_train = y_train.ravel()
+    y_test = y_test.ravel()
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
     mlp_model.fit(x_train, y_train)
