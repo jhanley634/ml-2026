@@ -16,12 +16,31 @@ from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
 
-TEST = 0.2  # hold out 20% of rows for evaluation after training
-SEED = 42
-
 
 def shuffle(df: pd.DataFrame) -> pd.DataFrame:
     return df.sample(frac=1, random_state=42)
+
+
+SEED = 42
+
+
+def _arr(a: pd.DataFrame | list[None]) -> NDArray[np.float64]:
+    assert isinstance(a, pd.DataFrame)
+    return np.array(a, dtype=np.float64)
+
+
+def _train_test_split(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    test_holdout_fraction: float = 0.2,
+    *,
+    random_seed: int = SEED,
+) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+    x_train, x_test, y_train, y_test = map(
+        _arr,
+        train_test_split(x, y, test_size=test_holdout_fraction, random_state=random_seed),
+    )
+    return x_train, x_test, y_train, y_test
 
 
 def create_models() -> None:
@@ -46,8 +65,7 @@ def create_mlp_model(
     *,
     want_charts: bool = False,
 ) -> None:
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
-    y_test = np.array(y_test, dtype=np.float64)
+    x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
     mlp_model.fit(x_train, y_train)
@@ -67,7 +85,7 @@ def create_xgb_model(
     *,
     want_charts: bool = False,
 ) -> XGBRegressor:
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
+    x_train, x_test, y_train, y_test = _train_test_split(x, y)
     y_test = np.array(y_test, dtype=np.float64)
 
     model = XGBRegressor(objective="reg:squarederror", n_estimators=100, random_state=SEED)
