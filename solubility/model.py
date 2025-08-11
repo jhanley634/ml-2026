@@ -13,6 +13,7 @@ from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
+from sklearn.svm import SVR
 from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import get_solubility_df
@@ -54,10 +55,29 @@ def create_models() -> None:
     x = df.drop("Solubility", axis="columns")
     y = pd.DataFrame(df["Solubility"])
 
+    create_svm_model(x, y)
+
     create_mlp_model(x, y)
 
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
+
+
+def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
+    x_train, x_test, y_train, y_test = _train_test_split(x, y)
+
+    svm_model = SVR(kernel="rbf", C=1.0, gamma="scale")
+
+    svm_model.fit(x_train, y_train.ravel())
+
+    y_pred = np.array(svm_model.predict(x_test), dtype=np.float64)
+
+    print()
+    print("SVM RMSE:", round(mean_squared_error(y_test, y_pred), 4))
+    print("SVM MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+
+    if want_charts:
+        plot(y_test, y_pred)
 
 
 def create_mlp_model(
@@ -71,9 +91,6 @@ def create_mlp_model(
     scaler = StandardScaler()
     x_train = scaler.fit_transform(x_train)
     x_test = scaler.transform(x_test)
-
-    y_train = y_train.ravel()
-    y_test = y_test.ravel()
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
     mlp_model.fit(x_train, y_train)
@@ -126,9 +143,6 @@ def show_importance(
     plot_tree(model)
 
 
-TMP = Path("/tmp")
-
-
 def _set_high_res_font_params() -> None:
     mpl.rcParams.update(
         {
@@ -142,6 +156,9 @@ def _set_high_res_font_params() -> None:
             "ytick.major.size": 5,
         },
     )
+
+
+TMP = Path("/tmp")
 
 
 def plot_tree(
