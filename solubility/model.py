@@ -82,12 +82,10 @@ def _set_high_res_font_params() -> None:
 def plot_tree(
     model: XGBRegressor,
     out_file: Path = TMP / "tree.pdf",
-    *,
     dpi: int = 1800,
-    figsize: tuple[float, float] = (12, 8),
 ) -> None:
     _set_high_res_font_params()
-    fig = xgb.plot_tree(model, tree_idx=0, figsize=figsize)
+    xgb.plot_tree(model, tree_idx=0, rankdir="LR")
     plt.savefig(out_file, dpi=dpi, bbox_inches="tight")
 
 
