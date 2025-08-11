@@ -28,10 +28,11 @@ def create_models() -> None:
     text_cols = ["ID", "Name", "InChI", "InChIKey", "SMILES", "Group"]
     df = shuffle(get_solubility_df())
     df = df.drop(labels=text_cols, axis="columns")
+    df = df.dropna()  # no missing values in this dataset, so this drops nothing
     assert len(df) == 9_982, len(df)
 
     x = df.drop("Solubility", axis="columns")
-    y = pd.Series(df["Solubility"])
+    y = pd.DataFrame(df["Solubility"])
 
     create_mlp_model(x, y)
 
@@ -39,7 +40,12 @@ def create_models() -> None:
     show_importance(xgb_model, x.columns)
 
 
-def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> None:
+def create_mlp_model(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    *,
+    want_charts: bool = False,
+) -> None:
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
     y_test = np.array(y_test, dtype=np.float64)
 
@@ -47,7 +53,7 @@ def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False
     mlp_model.fit(x_train, y_train)
 
     y_pred = np.array(mlp_model.predict(x_test), dtype=np.float64)
-
+    print()
     print("MLP RMSE:", round(mean_squared_error(y_test, y_pred), 4))
     print("MLP MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
 
@@ -55,7 +61,12 @@ def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False
         plot(y_test, y_pred)
 
 
-def create_xgb_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> XGBRegressor:
+def create_xgb_model(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    *,
+    want_charts: bool = False,
+) -> XGBRegressor:
     x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
     y_test = np.array(y_test, dtype=np.float64)
 
@@ -63,7 +74,7 @@ def create_xgb_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False
     model.fit(x_train, y_train)
 
     y_pred = model.predict(x_test)
-
+    print()
     print("XGB RMSE:", round(mean_squared_error(y_test, y_pred), 4))
     print("XGB MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
 
