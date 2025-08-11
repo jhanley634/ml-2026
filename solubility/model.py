@@ -33,10 +33,26 @@ def create_models() -> None:
     x = df.drop("Solubility", axis="columns")
     y = pd.Series(df["Solubility"])
 
+    create_mlp_model(x, y)
+
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
 
-    create_mlp_model(x, y)
+
+def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> None:
+    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
+    y_test = np.array(y_test, dtype=np.float64)
+
+    mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
+    mlp_model.fit(x_train, y_train)
+
+    y_pred = np.array(mlp_model.predict(x_test), dtype=np.float64)
+
+    print("MLP RMSE:", round(mean_squared_error(y_test, y_pred), 4))
+    print("MLP MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
+
+    if want_charts:
+        plot(y_test, y_pred)
 
 
 def create_xgb_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> XGBRegressor:
@@ -55,22 +71,6 @@ def create_xgb_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False
         plot(y_test, y_pred)
 
     return model
-
-
-def create_mlp_model(x: pd.DataFrame, y: pd.Series, *, want_charts: bool = False) -> None:
-    x_train, x_test, y_train, y_test = train_test_split(x, y, test_size=TEST, random_state=SEED)
-    y_test = np.array(y_test, dtype=np.float64)
-
-    mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
-    mlp_model.fit(x_train, y_train)
-
-    y_pred = np.array(mlp_model.predict(x_test), dtype=np.float64)
-
-    print("MLP RMSE:", round(mean_squared_error(y_test, y_pred), 4))
-    print("MLP MAE: ", round(mean_absolute_error(y_test, y_pred), 4))
-
-    if want_charts:
-        plot(y_test, y_pred)
 
 
 def show_importance(
