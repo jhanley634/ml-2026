@@ -9,6 +9,7 @@ import pandas as pd
 import seaborn as sns
 import xgboost as xgb
 from numpy.typing import NDArray
+from sklearn.ensemble import GradientBoostingRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
@@ -55,12 +56,30 @@ def create_models() -> None:
     x = df.drop("Solubility", axis="columns")
     y = pd.DataFrame(df["Solubility"])
 
+    create_gbr_model(x, y)
     create_svm_model(x, y)
-
     create_mlp_model(x, y)
 
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
+
+
+def create_gbr_model(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    *,
+    want_charts: bool = False,
+) -> None:
+    x_train, x_test, y_train, y_test = _train_test_split(x, y)
+
+    gbr_model = GradientBoostingRegressor(random_state=SEED)
+
+    gbr_model.fit(x_train, y_train.ravel())
+
+    _evaluate_error("GBR", gbr_model, x_test, y_test)
+
+    if want_charts:
+        plot(y_test, gbr_model.predict(x_test))
 
 
 def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
@@ -90,7 +109,7 @@ def create_mlp_model(
 
     mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
     print("\nfit start")
-    mlp_model.fit(x_train, y_train)
+    mlp_model.fit(x_train, y_train.ravel())
     print("\nfit done\n")
 
     _evaluate_error("MLP", mlp_model, x_test, y_test)
@@ -136,7 +155,7 @@ def show_importance(
 
 def _evaluate_error(
     label: str,
-    model: MLPRegressor | SVR | XGBRegressor,
+    model: GradientBoostingRegressor | MLPRegressor | SVR | XGBRegressor,
     x_test: NDArray[np.float64],
     y_test: NDArray[np.float64],
 ) -> None:
