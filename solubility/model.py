@@ -58,7 +58,6 @@ def create_models() -> None:
 
     create_gbr_model(x, y)
     create_svm_model(x, y)
-    create_mlp_model(x, y)
 
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
@@ -97,29 +96,6 @@ def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = Fa
 
     if want_charts:
         plot(y_test, svm_model.predict(x_test))
-
-
-def create_mlp_model(
-    x: pd.DataFrame,
-    y: pd.DataFrame,
-    *,
-    want_charts: bool = False,
-) -> None:
-    x_train, x_test, y_train, y_test = _train_test_split(x, y)
-
-    scaler = StandardScaler()
-    x_train = np.array(scaler.fit_transform(x_train))
-    x_test = np.array(scaler.transform(x_test))
-
-    mlp_model = MLPRegressor(hidden_layer_sizes=(100,), max_iter=500, random_state=SEED)
-    print("\nfit start")
-    mlp_model.fit(x_train, y_train.ravel())
-    print("\nfit done\n")
-
-    _evaluate_error("MLP", mlp_model, x_test, y_test)
-
-    if want_charts:
-        plot(y_test, np.array(mlp_model.predict(x_test)))
 
 
 def create_xgb_model(
