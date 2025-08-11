@@ -85,6 +85,10 @@ def create_gbr_model(
 def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
+    scaler = StandardScaler()
+    x_train = np.array(scaler.fit_transform(x_train))
+    x_test = np.array(scaler.transform(x_test))
+
     svm_model = SVR(kernel="rbf", C=1.0, gamma="scale")
 
     svm_model.fit(x_train, y_train.ravel())
