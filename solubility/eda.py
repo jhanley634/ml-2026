@@ -2,6 +2,7 @@
 
 # from:
 # https://www.kaggle.com/code/kerneler/starter-aqsoldb-a-curated-aqueous-6146b12d-1
+# cf https://www.nature.com/articles/s41597-019-0151-1
 
 from pathlib import Path
 
