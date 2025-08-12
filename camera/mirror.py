@@ -3,13 +3,14 @@
 import unicodedata
 
 import cv2
+from cv2 import THRESH_BINARY, THRESH_OTSU
 
 from camera.face_finder import FONT, GREEN, FPSCounter, face_finder, key, open_camera
 
 assert face_finder
 
 
-def mirror() -> None:
+def mirror(*, want_otsu: bool = False) -> None:
     """
     On a 14 inch MacBook Pro, pops up a window and displays what the laptop camera sees, in B&W.
     """
@@ -28,8 +29,11 @@ def mirror() -> None:
         ret, frame = cap.read()
         assert ret
         frame = cv2.flip(frame, 1)
-        if want_gray:
+        if want_gray or want_otsu:
             frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+        if want_otsu:
+            blurred = cv2.GaussianBlur(frame, (5, 5), 0)
+            _, frame = cv2.threshold(blurred, 0, 255, THRESH_BINARY + THRESH_OTSU)
 
         h, w, *_ = frame.shape
         fps = fps_counter.update()

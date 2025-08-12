@@ -3,7 +3,7 @@ import queue
 from dataclasses import dataclass
 from queue import Queue
 from threading import Event, Thread
-from time import time
+from time import sleep, time
 from typing import Any
 
 import cv2
@@ -141,4 +141,5 @@ def face_finder() -> None:
     stop_event.set()
     cap.release()
     cv2.destroyAllWindows()
+    sleep(0.5)
     frame_queue.join()  # Wait for task_done() calls to complete before exiting
