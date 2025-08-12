@@ -1,4 +1,4 @@
-#! /usr/bin/env YDATA_PROFILING_BANNER=0 python
+#! /usr/bin/env YDATA_SUPPRESS_BANNER=1 python
 
 # from:
 # https://www.kaggle.com/code/kerneler/starter-aqsoldb-a-curated-aqueous-6146b12d-1
@@ -18,10 +18,7 @@ def get_solubility_df() -> pd.DataFrame:
 
 
 def create_profile() -> None:
-    profile = ProfileReport(
-        get_solubility_df(),
-        title="Solubility Profiling Report",
-    )
+    profile = ProfileReport(get_solubility_df(), title="Solubility Profiling Report")
     html = Path("/tmp/solubility.html")
     if not html.exists():
         profile.to_file(html)

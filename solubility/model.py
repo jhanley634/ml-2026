@@ -45,7 +45,7 @@ def _train_test_split(
         _arr,
         train_test_split(x, y, test_size=test_holdout_fraction, random_state=random_seed),
     )
-    return x_train, x_test, y_train, y_test
+    return x_train, x_test, y_train.ravel(), y_test.ravel()
 
 
 def create_models() -> None:
@@ -75,12 +75,12 @@ def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = Fa
 
     svm_model = SVR(kernel="rbf", C=1.0, gamma="scale")
 
-    svm_model.fit(x_train, y_train.ravel())
+    svm_model.fit(x_train, y_train)
 
     _evaluate_error("SVM", svm_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test.ravel(), svm_model.predict(x_test))
+        plot(y_test, svm_model.predict(x_test))
 
 
 def create_gbr_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
@@ -88,24 +88,24 @@ def create_gbr_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = Fa
 
     gbr_model = GradientBoostingRegressor(random_state=SEED)
 
-    gbr_model.fit(x_train, y_train.ravel())
+    gbr_model.fit(x_train, y_train)
 
     _evaluate_error("GBR", gbr_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test.ravel(), gbr_model.predict(x_test))
+        plot(y_test, gbr_model.predict(x_test))
 
 
 def create_rf_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
     rf_model = RandomForestRegressor(n_estimators=100, random_state=SEED)
-    rf_model.fit(x_train, y_train.ravel())
+    rf_model.fit(x_train, y_train)
 
     _evaluate_error("RF ", rf_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test.ravel(), rf_model.predict(x_test))
+        plot(y_test, rf_model.predict(x_test))
 
 
 def create_xgb_model(
