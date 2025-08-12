@@ -9,7 +9,7 @@ import pandas as pd
 import seaborn as sns
 import xgboost as xgb
 from numpy.typing import NDArray
-from sklearn.ensemble import GradientBoostingRegressor
+from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
 from sklearn.neural_network import MLPRegressor
@@ -56,11 +56,29 @@ def create_models() -> None:
     x = df.drop("Solubility", axis="columns")
     y = pd.DataFrame(df["Solubility"])
 
-    create_gbr_model(x, y)
     create_svm_model(x, y)
+    create_gbr_model(x, y)
+    create_random_forest_model(x, y)
 
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
+
+
+def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
+    x_train, x_test, y_train, y_test = _train_test_split(x, y)
+
+    scaler = StandardScaler()
+    x_train = np.array(scaler.fit_transform(x_train))
+    x_test = np.array(scaler.transform(x_test))
+
+    svm_model = SVR(kernel="rbf", C=1.0, gamma="scale")
+
+    svm_model.fit(x_train, y_train.ravel())
+
+    _evaluate_error("SVM", svm_model, x_test, y_test)
+
+    if want_charts:
+        plot(y_test, svm_model.predict(x_test))
 
 
 def create_gbr_model(
@@ -81,21 +99,21 @@ def create_gbr_model(
         plot(y_test, gbr_model.predict(x_test))
 
 
-def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
+def create_random_forest_model(
+    x: pd.DataFrame,
+    y: pd.DataFrame,
+    *,
+    want_charts: bool = False,
+) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
-    scaler = StandardScaler()
-    x_train = np.array(scaler.fit_transform(x_train))
-    x_test = np.array(scaler.transform(x_test))
+    rf_model = RandomForestRegressor(n_estimators=100, random_state=SEED)
+    rf_model.fit(x_train, y_train.ravel())
 
-    svm_model = SVR(kernel="rbf", C=1.0, gamma="scale")
-
-    svm_model.fit(x_train, y_train.ravel())
-
-    _evaluate_error("SVM", svm_model, x_test, y_test)
+    _evaluate_error("RF ", rf_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, svm_model.predict(x_test))
+        plot(y_test, rf_model.predict(x_test))
 
 
 def create_xgb_model(
@@ -135,7 +153,7 @@ def show_importance(
 
 def _evaluate_error(
     label: str,
-    model: GradientBoostingRegressor | MLPRegressor | SVR | XGBRegressor,
+    model: GradientBoostingRegressor | MLPRegressor | RandomForestRegressor | SVR | XGBRegressor,
     x_test: NDArray[np.float64],
     y_test: NDArray[np.float64],
 ) -> None:
