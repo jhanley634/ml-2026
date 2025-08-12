@@ -17,7 +17,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from xgboost.sklearn import XGBRegressor
 
-from solubility.eda import get_solubility_df
+from solubility.eda import TMP, get_solubility_df
 
 
 def shuffle(df: pd.DataFrame) -> pd.DataFrame:
@@ -165,9 +165,6 @@ def _set_high_res_font_params() -> None:
             "ytick.major.size": 5,
         },
     )
-
-
-TMP = Path("/tmp")
 
 
 def plot_tree(
