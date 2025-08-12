@@ -60,7 +60,7 @@ def create_models() -> None:
 
     create_svm_model(x, y)
     create_gbr_model(x, y)
-    create_random_forest_model(x, y)
+    create_rf_model(x, y)
 
     xgb_model = create_xgb_model(x, y)
     show_importance(xgb_model, x.columns)
@@ -80,15 +80,10 @@ def create_svm_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = Fa
     _evaluate_error("SVM", svm_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, svm_model.predict(x_test))
+        plot(y_test.ravel(), svm_model.predict(x_test))
 
 
-def create_gbr_model(
-    x: pd.DataFrame,
-    y: pd.DataFrame,
-    *,
-    want_charts: bool = False,
-) -> None:
+def create_gbr_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
     gbr_model = GradientBoostingRegressor(random_state=SEED)
@@ -98,15 +93,10 @@ def create_gbr_model(
     _evaluate_error("GBR", gbr_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, gbr_model.predict(x_test))
+        plot(y_test.ravel(), gbr_model.predict(x_test))
 
 
-def create_random_forest_model(
-    x: pd.DataFrame,
-    y: pd.DataFrame,
-    *,
-    want_charts: bool = False,
-) -> None:
+def create_rf_model(x: pd.DataFrame, y: pd.DataFrame, *, want_charts: bool = False) -> None:
     x_train, x_test, y_train, y_test = _train_test_split(x, y)
 
     rf_model = RandomForestRegressor(n_estimators=100, random_state=SEED)
@@ -115,7 +105,7 @@ def create_random_forest_model(
     _evaluate_error("RF ", rf_model, x_test, y_test)
 
     if want_charts:
-        plot(y_test, rf_model.predict(x_test))
+        plot(y_test.ravel(), rf_model.predict(x_test))
 
 
 def create_xgb_model(
@@ -137,10 +127,7 @@ def create_xgb_model(
     return xgb_model
 
 
-def show_importance(
-    model: XGBRegressor,
-    feature_names: pd.Index,
-) -> None:
+def show_importance(model: XGBRegressor, feature_names: pd.Index) -> None:
     imp_series = pd.Series(
         data=model.feature_importances_,
         index=feature_names,
