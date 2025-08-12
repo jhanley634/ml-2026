@@ -26,8 +26,10 @@ def shuffle(df: pd.DataFrame) -> pd.DataFrame:
 
 SEED = 42
 
+FltArr = NDArray[np.float64]
 
-def _arr(a: pd.DataFrame | list[None]) -> NDArray[np.float64]:
+
+def _arr(a: pd.DataFrame | list[None]) -> FltArr:
     assert isinstance(a, pd.DataFrame)
     return np.array(a, dtype=np.float64)
 
@@ -38,7 +40,7 @@ def _train_test_split(
     test_holdout_fraction: float = 0.2,
     *,
     random_seed: int = SEED,
-) -> tuple[NDArray[np.float64], NDArray[np.float64], NDArray[np.float64], NDArray[np.float64]]:
+) -> tuple[FltArr, FltArr, FltArr, FltArr]:
     x_train, x_test, y_train, y_test = map(
         _arr,
         train_test_split(x, y, test_size=test_holdout_fraction, random_state=random_seed),
@@ -154,8 +156,8 @@ def show_importance(
 def _evaluate_error(
     label: str,
     model: GradientBoostingRegressor | MLPRegressor | RandomForestRegressor | SVR | XGBRegressor,
-    x_test: NDArray[np.float64],
-    y_test: NDArray[np.float64],
+    x_test: FltArr,
+    y_test: FltArr,
 ) -> None:
     y_pred = model.predict(x_test)
     print()
@@ -191,7 +193,7 @@ def plot_tree(
     plt.savefig(out_file, dpi=dpi, bbox_inches="tight")
 
 
-def plot(y_test: NDArray[np.float64], y_pred: NDArray[np.float64]) -> None:
+def plot(y_test: FltArr, y_pred: FltArr) -> None:
 
     plt.figure(figsize=(10, 6))
     sns.scatterplot(x=y_test, y=y_pred, label="Predictions vs. Actual")
