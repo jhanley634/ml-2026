@@ -97,10 +97,9 @@ impl FpsWriter {
 }
 
 pub fn mirror() -> Result<(), MirrorError> {
-    println!("Hit 'q' to quit");
+    println!("Hit 'q' to quit or 'g' to toggle grayscale");
 
     let mut cap = VideoCapture::new(0, 0)?;
-
     let frame_width = cap.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
     let frame_height = cap.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
     let is_mono = cap.get(videoio::CAP_PROP_MONOCHROME)? == 0.;
@@ -119,33 +118,40 @@ pub fn mirror() -> Result<(), MirrorError> {
 
     let mut fps_tracker = Fps::new();
     let fps_writer = FpsWriter::new(font, color, thickness);
+    let mut is_grayscale = true;
 
     loop {
         let mut frame = Mat::default();
-        let ret = cap.read(&mut frame)?;
-        if !ret {
+        if !cap.read(&mut frame)? {
             break;
         }
 
         let mut flipped_frame = Mat::default();
-        flip(&frame, &mut flipped_frame, 1)?; // horizontally
+        flip(&frame, &mut flipped_frame, 1)?; //horizontally
 
-        let mut gray = Mat::default();
-        cvt_color(
-            &flipped_frame,
-            &mut gray,
-            ColorConversionCodes::COLOR_BGR2GRAY as i32,
-            0,
-            AlgorithmHint::ALGO_HINT_DEFAULT,
-        )?;
+        let display_frame = if is_grayscale {
+            let mut gray = Mat::default();
+            cvt_color(
+                &flipped_frame,
+                &mut gray,
+                ColorConversionCodes::COLOR_BGR2GRAY as i32,
+                0,
+                AlgorithmHint::ALGO_HINT_DEFAULT,
+            )?;
+            fps_writer.write_fps(&mut gray, fps_tracker)?;
+            gray
+        } else {
+            flipped_frame.clone()
+        };
 
-        fps_writer.write_fps(&mut gray, fps_tracker)?;
-
-        imshow("Mirror", &gray)?;
+        imshow("Mirror", &display_frame)?;
 
         let key = wait_key(1)?;
         if key == 'q' as i32 {
             break;
+        }
+        if key == 'g' as i32 {
+            is_grayscale = !is_grayscale; // Toggle grayscale mode
         }
 
         fps_tracker.update();
