@@ -6,12 +6,15 @@ requires-python = "~= 3.12,  < 3.13"
 
 dependencies = [
     "graphviz",
+    "huggingface-hub",
     "kagglehub",
     "opencv-python",
     "pandas",
     "requests",
     "scikit-learn",
+    "sentence-transformers",
     "setuptools",
+    "transformers",
     "xgboost",
     "ydata-profiling",
 ]
@@ -23,6 +26,7 @@ dev = [
     "pre-commit",
     "pyright",
     "ruff",
+    "safety",
 ]
 
 [tool.uv]
