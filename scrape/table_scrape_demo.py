@@ -5,6 +5,8 @@ from io import StringIO
 import pandas as pd
 import requests
 from bs4 import BeautifulSoup
+from bs4.element import Tag
+from dateutil.parser import parse as date_parse
 
 
 def _to_int(value: str) -> int:
@@ -17,6 +19,19 @@ def _to_int(value: str) -> int:
     else:
         number = float(value)
     return int(number)
+
+
+def _parse_date(date_str: str | float) -> str | None:
+    """Parses a date string into an ISO 8601-compliant format."""
+    print(type(date_str), date_str)
+    assert isinstance(date_str, str | float), (type(date_str), date_str)
+    date_str = str(date_str)
+    try:
+        clean_date_str = date_str.replace("*", "").strip()
+        parsed_date = date_parse(clean_date_str)
+        return parsed_date.strftime("%Y-%m-%d")
+    except (ValueError, TypeError):
+        return None
 
 
 def _downcase(s: str) -> str:
@@ -34,10 +49,13 @@ def extract_table(url: str) -> pd.DataFrame:
 
     soup = BeautifulSoup(StringIO(response.text), "lxml")
     tbl = soup.find_all("table")[0]
+    assert tbl
     th = tbl.find_next("tr")
-    column_names = list(filter(None, (col.get_text(strip=True) for col in th)))
-    df.columns = map(_downcase, column_names)
+    assert isinstance(th, Tag), type(th)
+    column_names = [col.get_text(strip=True) for col in th]
+    df.columns = map(_downcase, filter(None, column_names))
     df["user_records"] = df.user_records.apply(_to_int)
+    df["breach_date"] = df.breach_date.apply(_parse_date)
     return df
 
 
