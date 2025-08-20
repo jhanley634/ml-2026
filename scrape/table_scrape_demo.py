@@ -23,8 +23,7 @@ def _to_int(value: str) -> int:
 
 def _parse_date(date_str: str | float) -> str | None:
     """Parses a date string into an ISO 8601-compliant format."""
-    print(type(date_str), date_str)
-    assert isinstance(date_str, str | float), (type(date_str), date_str)
+    assert isinstance(date_str, str | float)
     date_str = str(date_str)
     try:
         clean_date_str = date_str.replace("*", "").strip()
@@ -53,9 +52,9 @@ def extract_table(url: str) -> pd.DataFrame:
     th = tbl.find_next("tr")
     assert isinstance(th, Tag), type(th)
     column_names = [col.get_text(strip=True) for col in th]
-    df.columns = map(_downcase, filter(None, column_names))
+    df.columns = list(map(_downcase, filter(None, column_names)))
     df["user_records"] = df.user_records.apply(_to_int)
-    df["breach_date"] = df.breach_date.apply(_parse_date)
+    df["breach_date"] = pd.to_datetime(df["breach_date"].apply(_parse_date))
     return df
 
 
