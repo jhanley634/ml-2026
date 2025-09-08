@@ -63,8 +63,8 @@ def find_daily_counts(activity: dict[datetime, int]) -> pd.DataFrame:
     # Find per-interval counts.
     df = pd.DataFrame(
         {
-            "stamp": list(activity.keys()),
-            "count": list(activity.values()),
+            "stamp": activity.keys(),
+            "count": activity.values(),
         },
     )
     df = df.set_index("stamp")

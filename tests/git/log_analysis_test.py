@@ -62,8 +62,8 @@ class TestGitLogAnalysis(unittest.TestCase):
         }
         expected_df = pd.DataFrame(
             {
-                "stamp": list(expected_data.keys()),
-                "count": list(expected_data.values()),
+                "stamp": expected_data.keys(),
+                "count": expected_data.values(),
             },
         ).set_index("stamp")
 
