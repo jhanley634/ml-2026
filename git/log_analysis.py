@@ -25,7 +25,8 @@ UTC = ZoneInfo("UTC")
 def get_git_commits() -> list[str]:
     """Retrieve git commit logs with timestamps."""
     result = subprocess.run(
-        ["git", "log", "--pretty=format:%at %s"],
+        ["git", "reflog", "--pretty=format:%at %gs"],
+        check=True,
         capture_output=True,
         text=True,
     )
