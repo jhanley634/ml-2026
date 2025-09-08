@@ -14,6 +14,7 @@ will contribute to the activity record.
 
 import subprocess
 from collections import defaultdict
+from collections.abc import Iterable
 from datetime import datetime
 from zoneinfo import ZoneInfo
 
@@ -40,7 +41,7 @@ def parse_commit_line(line: str) -> tuple[datetime, str]:
     return timestamp, commit_message
 
 
-def mark_intervals(commit_timestamps: list[tuple[datetime, str]]) -> dict[datetime, int]:
+def mark_intervals(commit_timestamps: Iterable[tuple[datetime, str]]) -> dict[datetime, int]:
     """Mark each active interval with its number of commits."""
     activity: dict[datetime, int] = defaultdict(int)
 
@@ -66,8 +67,7 @@ def find_daily_counts(activity: dict[datetime, int]) -> pd.DataFrame:
             "stamp": activity.keys(),
             "count": activity.values(),
         },
-    )
-    df = df.set_index("stamp")
+    ).set_index("stamp")
 
     # Now resample at daily frequency, summing up each day's counts.
     ret = df.resample("D").sum()
@@ -77,7 +77,7 @@ def find_daily_counts(activity: dict[datetime, int]) -> pd.DataFrame:
 
 
 def main() -> None:
-    commit_pairs = [parse_commit_line(line) for line in get_git_commits()]
+    commit_pairs = map(parse_commit_line, get_git_commits())
     print(find_daily_counts(mark_intervals(commit_pairs)))
 
 
