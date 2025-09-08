@@ -1,5 +1,6 @@
 import unittest
 from datetime import datetime
+from typing import Any
 from unittest import mock
 from zoneinfo import ZoneInfo
 
@@ -16,7 +17,7 @@ TZ = ZoneInfo("America/Los_Angeles")
 
 class TestGitLogAnalysis(unittest.TestCase):
 
-    def __init__(self) -> None:
+    def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa
         self.mock_output = """1617187200 Commit message 1
                             1617190800 Commit message 2
                             1617210000 Commit message 3"""
@@ -25,6 +26,7 @@ class TestGitLogAnalysis(unittest.TestCase):
             (datetime(2021, 4, 1, 10, tzinfo=UTC), "Commit message 2"),
             (datetime(2021, 5, 1, 0, tzinfo=UTC), "Commit message 3"),
         ]
+        super().__init__(*args, **kwargs)
 
     def test_get_git_commits(self) -> None:
         with mock.patch("subprocess.run") as mocked_run:

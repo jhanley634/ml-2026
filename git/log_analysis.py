@@ -9,9 +9,8 @@ Report daily total hours of activity on the checked out feature branch.
 
 NB: A simple `git log` will not suffice, as we frequently
 use `git --amend --no-edit`. Each timestamped amendment
-should contribute to the activity record.
+will contribute to the activity record.
 """
-
 
 import subprocess
 from datetime import date, datetime, timedelta
@@ -52,7 +51,7 @@ def mark_intervals(commit_timestamps: list[tuple[datetime, str]]) -> dict[date, 
         if day_key not in activity:
             activity[day_key] = [0] * interval_count
 
-        start_of_day = datetime.combine(day_key, datetime.min.time())
+        start_of_day = datetime.combine(day_key, datetime.min.time(), tzinfo=UTC)
         elapsed_time = timestamp - start_of_day
         interval_index = int(elapsed_time // interval_duration)
 
