@@ -29,6 +29,8 @@ dev = [
     "pyright >= 1.1.405",
     "ruff",
     "safety",
+    "types-python-dateutil",
+    "types-requests",
 ]
 
 [tool.uv]
