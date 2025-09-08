@@ -54,8 +54,8 @@ def extract_table(url: str) -> pd.DataFrame:
     column_names = [col.get_text(strip=True) for col in th]
     df.columns = list(map(_downcase, filter(None, column_names)))
     df["user_records"] = df.user_records.apply(_to_int)
-    df["breach_date"] = pd.to_datetime(df["breach_date"].apply(_parse_date))
-    return df
+    df["breach_date"] = pd.to_datetime(df.breach_date.apply(_parse_date))
+    return pd.DataFrame(df)
 
 
 if __name__ == "__main__":
