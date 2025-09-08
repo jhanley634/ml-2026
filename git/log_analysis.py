@@ -13,8 +13,11 @@ will contribute to the activity record.
 """
 
 import subprocess
-from datetime import date, datetime, timedelta
+from collections import defaultdict
+from datetime import datetime
 from zoneinfo import ZoneInfo
+
+import pandas as pd
 
 UTC = ZoneInfo("UTC")
 
@@ -23,7 +26,6 @@ def get_git_commits() -> list[str]:
     """Retrieve git commit logs with timestamps."""
     result = subprocess.run(
         ["git", "log", "--pretty=format:%at %s"],
-        check=False,
         capture_output=True,
         text=True,
     )
@@ -37,50 +39,45 @@ def parse_commit_line(line: str) -> tuple[datetime, str]:
     return timestamp, commit_message
 
 
-def mark_intervals(commit_timestamps: list[tuple[datetime, str]]) -> dict[date, list[int]]:
+def mark_intervals(commit_timestamps: list[tuple[datetime, str]]) -> dict[datetime, int]:
     """Mark active intervals based on commit timestamps."""
-    interval_count = 48
-    interval_duration = timedelta(minutes=30)
+    activity: dict[datetime, int] = defaultdict(int)
 
-    activity = {}
-
-    for timestamp_tuple in commit_timestamps:
-        timestamp = timestamp_tuple[0]  # Access the datetime from the tuple
-        day_key = timestamp.date()
-
-        if day_key not in activity:
-            activity[day_key] = [0] * interval_count
-
-        start_of_day = datetime.combine(day_key, datetime.min.time(), tzinfo=UTC)
-        elapsed_time = timestamp - start_of_day
-        interval_index = int(elapsed_time // interval_duration)
-
-        activity[day_key][interval_index] = 1
+    for timestamp, _ in commit_timestamps:
+        interval_start = datetime(
+            year=timestamp.year,
+            month=timestamp.month,
+            day=timestamp.day,
+            hour=timestamp.hour,
+            minute=(timestamp.minute // 30) * 30,  # half-hour intervals
+            second=0,
+            tzinfo=UTC,
+        )
+        activity[interval_start] += 1
 
     return activity
 
 
-def calculate_daily_hours(activity: dict[date, list[int]]) -> dict[date, float]:
-    """Calculate total hours of activity per day."""
-    daily_hours = {}
+def find_daily_counts(activity: dict[datetime, int]) -> pd.DataFrame:
+    # Find per-interval counts.
+    df = pd.DataFrame(
+        {
+            "stamp": list(activity.keys()),
+            "count": list(activity.values()),
+        },
+    )
+    df = df.set_index("stamp")
 
-    for day, intervals in activity.items():
-        active_intervals = sum(intervals)
-        # Convert active intervals to hours (48 intervals per day)
-        daily_hours[day] = active_intervals * (60 / 2) / 60
-
-    return daily_hours
+    # Now resample at daily frequency, summing up each day's counts.
+    ret = df.resample("D").sum()
+    ret = ret[ret["count"] > 0]
+    ret.index.freq = None
+    return ret
 
 
 def main() -> None:
-    commits = get_git_commits()
-    commit_pairs = [parse_commit_line(line) for line in commits]
-
-    activity = mark_intervals(commit_pairs)
-    daily_hours = calculate_daily_hours(activity)
-
-    for day, hours in sorted(daily_hours.items()):
-        print(f"{day}: {hours:.2f} hours")
+    commit_pairs = [parse_commit_line(line) for line in get_git_commits()]
+    print(find_daily_counts(mark_intervals(commit_pairs)))
 
 
 if __name__ == "__main__":

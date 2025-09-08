@@ -4,12 +4,9 @@ from typing import Any
 from unittest import mock
 from zoneinfo import ZoneInfo
 
-from git.log_analysis import (
-    calculate_daily_hours,
-    get_git_commits,
-    mark_intervals,
-    parse_commit_line,
-)
+import pandas as pd
+
+from git.log_analysis import find_daily_counts, get_git_commits, mark_intervals, parse_commit_line
 
 UTC = ZoneInfo("UTC")
 TZ = ZoneInfo("America/Los_Angeles")
@@ -37,34 +34,40 @@ class TestGitLogAnalysis(unittest.TestCase):
                 self.assertIn(commit, self.mock_output.splitlines())
 
     def test_parse_commit_line(self) -> None:
-        # Test to verify parse_commit_line function
         for timestamp, message in self.parsed_commits:
             result = parse_commit_line(f"{int(timestamp.timestamp())} {message}")
             self.assertEqual(result[0], timestamp)
             self.assertEqual(result[1], message)
 
     def test_mark_intervals(self) -> None:
-        activity = mark_intervals(self.parsed_commits)  # Use self.parsed_commits directly
+        activity = mark_intervals(self.parsed_commits)
 
         expected_activity = {
-            datetime(2021, 4, 1, tzinfo=UTC).date(): [0] * 17 + [1] + [0] * 30 + [1] + [0] * 48,
-            datetime(2021, 5, 1, tzinfo=UTC).date(): [0] * 48,
+            datetime(2021, 4, 1, hour=9, tzinfo=UTC): 1,
+            datetime(2021, 4, 1, hour=10, tzinfo=UTC): 1,
+            datetime(2021, 5, 1, hour=0, tzinfo=UTC): 1,
         }
+        self.assertEqual(set(expected_activity.keys()), set(activity.keys()))
+        for day in activity:
+            self.assertEqual(expected_activity[day], activity[day])
 
-        for day, expected_values in expected_activity.items():
-            self.assertIn(day, activity)
-            self.assertEqual(activity[day], expected_values)
-
-    def test_calculate_daily_hours(self) -> None:
-        # Test to verify calculate_daily_hours function
+    def test_find_daily_counts(self) -> None:
         sample_activity = {
-            datetime(2021, 4, 1, tzinfo=UTC).date(): [0] * 17 + [1] + [0] * 30 + [1] + [0] * 48,
-            datetime(2021, 5, 1, tzinfo=UTC).date(): [0] * 48,
+            datetime(2021, 4, 1, hour=9, tzinfo=UTC): 2,
+            datetime(2021, 5, 1, hour=10, tzinfo=UTC): 1,
+            datetime(2021, 5, 1, hour=11, tzinfo=UTC): 1,
         }
+        expected_data = {
+            datetime.combine(datetime(2021, 4, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,
+            datetime.combine(datetime(2021, 5, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,
+        }
+        expected_df = pd.DataFrame(
+            {
+                "stamp": list(expected_data.keys()),
+                "count": list(expected_data.values()),
+            },
+        ).set_index("stamp")
 
-        daily_hours = calculate_daily_hours(sample_activity)
-        self.assertEqual(
-            daily_hours[datetime(2021, 4, 1, tzinfo=UTC).date()],
-            1.00,
-        )
-        self.assertEqual(daily_hours[datetime(2021, 5, 1, tzinfo=UTC).date()], 0.00)
+        result_df = find_daily_counts(sample_activity)
+
+        pd.testing.assert_frame_equal(expected_df, result_df)
