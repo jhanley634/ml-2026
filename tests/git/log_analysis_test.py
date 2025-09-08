@@ -14,9 +14,6 @@ UTC = ZoneInfo("UTC")
 class TestGitLogAnalysis(unittest.TestCase):
 
     def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa
-        self.mock_output = """1617187200 Commit message 1
-                            1617190800 Commit message 2
-                            1617210000 Commit message 3"""
         self.parsed_commits = [
             (datetime(2021, 4, 1, 9, tzinfo=UTC), "Commit message 1"),
             (datetime(2021, 4, 1, 10, tzinfo=UTC), "Commit message 2"),
@@ -25,12 +22,17 @@ class TestGitLogAnalysis(unittest.TestCase):
         super().__init__(*args, **kwargs)
 
     def test_get_git_commits(self) -> None:
+        mock_output = """\
+            1617187200 Commit message 1
+            1617190800 Commit message 2
+            1617210000 Commit message 3"""
+
         with mock.patch("subprocess.run") as mocked_run:
-            mocked_run.return_value.stdout = self.mock_output
+            mocked_run.return_value.stdout = mock_output
             commits = get_git_commits()
             self.assertEqual(len(commits), 3)
             for commit in commits:
-                self.assertIn(commit, self.mock_output.splitlines())
+                self.assertIn(commit, mock_output.splitlines())
 
     def test_parse_commit_line(self) -> None:
         for timestamp, message in self.parsed_commits:
