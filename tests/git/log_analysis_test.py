@@ -9,7 +9,6 @@ import pandas as pd
 from git.log_analysis import find_daily_counts, get_git_commits, mark_intervals, parse_commit_line
 
 UTC = ZoneInfo("UTC")
-TZ = ZoneInfo("America/Los_Angeles")
 
 
 class TestGitLogAnalysis(unittest.TestCase):

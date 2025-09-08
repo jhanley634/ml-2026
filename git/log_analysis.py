@@ -41,16 +41,16 @@ def parse_commit_line(line: str) -> tuple[datetime, str]:
 
 
 def mark_intervals(commit_timestamps: list[tuple[datetime, str]]) -> dict[datetime, int]:
-    """Mark active intervals based on commit timestamps."""
+    """Mark each active interval with its number of commits."""
     activity: dict[datetime, int] = defaultdict(int)
 
-    for timestamp, _ in commit_timestamps:
+    for stamp, _ in commit_timestamps:
         interval_start = datetime(
-            year=timestamp.year,
-            month=timestamp.month,
-            day=timestamp.day,
-            hour=timestamp.hour,
-            minute=(timestamp.minute // 30) * 30,  # half-hour intervals
+            year=stamp.year,
+            month=stamp.month,
+            day=stamp.day,
+            hour=stamp.hour,
+            minute=(stamp.minute // 30) * 30,  # half-hour intervals
             second=0,
             tzinfo=UTC,
         )
