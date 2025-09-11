@@ -2,7 +2,6 @@
 
 from pathlib import Path
 from time import time
-from typing import Any, cast
 
 import numpy as np
 import polars as pl
@@ -79,7 +78,7 @@ def get_column_names(model_class: Base) -> dict[str, None]:
     return {f"{c.key}": None for c in model_class.__table__.columns}
 
 
-def get_huge_small(small_size: int = 500_000, huge_size: int = 200_000_000) -> tuple[
+def get_huge_small(small_size: int = 500_000, huge_size: int = 2_000_000) -> tuple[
     list[dict[str, float]],
     list[dict[str, float]],
 ]:
@@ -142,16 +141,30 @@ def get_huge_small(small_size: int = 500_000, huge_size: int = 200_000_000) -> t
 def create_test_data() -> None:
     """Create sample data and save to SQLite database tables for realistic I/O testing"""
 
+    start = time()
     huge_data, small_data = get_huge_small()
 
     engine = get_engine()
     Base.metadata.create_all(engine)
     session = get_session()
 
-    session.bulk_insert_mappings(cast("Any", HugeDataFrame), huge_data)
-    session.bulk_insert_mappings(cast("Any", SmallDataFrame), small_data)
+    print(1, int(time() - start))
+    # huge_records = [HugeDataFrame(**record) for record in huge_data]
+    huge_df = pl.DataFrame(huge_data)
+    print(2, int(time() - start))
+    # session.bulk_save_objects(huge_records)
+    huge_df.write_database("huge_df", connection=engine, if_table_exists="replace")
+
+    print(3, int(time() - start))
+    # small_records = [SmallDataFrame(**record) for record in small_data]
+    small_df = pl.DataFrame(small_data)
+    print(4, int(time() - start))
+    # session.bulk_save_objects(small_records)
+    small_df.write_database("small_df", connection=engine, if_table_exists="replace")
+    print(5, int(time() - start))
 
     session.commit()
+    session.close()
 
 
 def naive_approach(small_parquet_path: Path, huge_parquet_path: Path) -> pl.DataFrame:
