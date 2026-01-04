@@ -2,7 +2,7 @@
 name = "ml-2026"
 version = "0.1.0"
 readme = "ReadMe.md"
-requires-python = "~= 3.12.0"
+requires-python = "~= 3.13.0"
 
 dependencies = [
     "bs4",
@@ -69,7 +69,6 @@ select = [
     "RET", "RSE", "RUF", "SIM", "SLF", "SLOT", "TCH", "TID", "TRY", "UP", "W", "YTT",
 ]
 ignore = [
-    "PD901",
     "PLR2004",
 ]
 
