@@ -13,7 +13,7 @@ dependencies = [
     "opencv-python",
     "pandas",
     "polars",
-    "pyarrow >= 21",
+    "pyarrow",
     "requests",
     "scikit-learn",
     "sentence-transformers",
