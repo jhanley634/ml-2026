@@ -4,10 +4,11 @@ import unicodedata
 
 import cv2
 from cv2 import THRESH_BINARY, THRESH_OTSU
+from cv2.version import opencv_version
 
 from camera.face_finder import FONT, GREEN, FPSCounter, face_finder, key, open_camera
 
-assert face_finder
+assert opencv_version > "4.12.0"
 
 
 def mirror(*, want_otsu: bool = False) -> None:

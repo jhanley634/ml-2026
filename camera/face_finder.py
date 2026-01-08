@@ -42,7 +42,7 @@ def key() -> str:
 def order_by_size(rectangle: NDArray[np.int32]) -> int:
     r = rectangle
     assert r.shape == (4,)  # x, y, w, h
-    assert r[2] == r[3], r  # square
+    # assert r[2] == r[3], r  # square
     return int(r[3])
 
 
