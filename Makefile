@@ -19,7 +19,7 @@ install: .venv
 STRICT = --strict --warn-unreachable --ignore-missing-imports --no-namespace-packages
 
 ruff-check:
-	$(ACTIVATE) && black . && ruff check --fix
+	$(ACTIVATE) && black . && ruff check --preview --fix
 lint: ruff-check
 	$(ACTIVATE) && pyright .
 	$(ACTIVATE) && mypy $(STRICT) .
