@@ -59,7 +59,6 @@ def face_finder() -> None:
         f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
     )
     fps_counter = FPSCounter()
-    fps = 10.01
     prev_rect = None
 
     while key() != "Q":
@@ -79,8 +78,7 @@ def face_finder() -> None:
 
             prev_rect = current_rect
 
-        fps = fps_counter.update()
-        cv2.putText(frame, f"FPS: {fps:.1f}", (100, 200), FONT, 1.9, GREEN, 2)
+        cv2.putText(frame, f"FPS: {fps_counter.update():.1f}", (100, 200), FONT, 1.9, GREEN, 2)
         cv2.imshow("Face Finder", frame)
 
     cap.release()
