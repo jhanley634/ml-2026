@@ -1,9 +1,12 @@
 from time import time
+from typing import TYPE_CHECKING
 
 import cv2
 import cv2.data
 import numpy as np
-from numpy._typing import NDArray
+
+if TYPE_CHECKING:
+    from numpy._typing import NDArray
 
 
 class FPSCounter:
