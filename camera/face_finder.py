@@ -76,7 +76,7 @@ def face_finder() -> None:
 
             if prev_rect is not None:
                 smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
-                x, y, w, h = np.round(prev_rect + smoothed).astype(int)
+                x, y, w, h = map(int, np.round(prev_rect + smoothed))
                 cv2.rectangle(frame, (x, y), (x + w, y + h), VIOLET, 4)
 
             prev_rect = current_rect
