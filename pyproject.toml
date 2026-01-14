@@ -5,6 +5,7 @@ readme = "ReadMe.md"
 requires-python = ">= 3.14, < 3.15"
 
 dependencies = [
+    "hypothesis >= 6.150.2",
     "opencv-python",
     "pandas",
     "pytesseract >= 0.3.13",
