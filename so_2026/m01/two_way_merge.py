@@ -1,10 +1,16 @@
 # from https://codereview.stackexchange.com/a/301010/find-median-of-two-sorted-arrays
 
 
-def merge(lst1, lst2):
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from collections.abc import Generator, Sequence
+
+
+def merge(lst1: Sequence[float], lst2: Sequence[float]) -> Generator[float]:
     """
     Creates a generator yielding sorted,
-    merged contents of two input lists.
+    merged contents of two sorted input sequences / lists.
     """
 
     i, j = 0, 0
