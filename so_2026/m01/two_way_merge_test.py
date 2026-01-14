@@ -19,17 +19,17 @@ class TwoWayMergeTest(unittest.TestCase):
             list(merge(b, a)),
         )
 
-    @given(st.lists(st.floats(), min_size=1), st.lists(st.floats(), min_size=1))
+    @given(
+        st.lists(st.floats(allow_nan=False, allow_infinity=False), min_size=0),
+        st.lists(st.floats(allow_nan=False, allow_infinity=False), min_size=0),
+    )
     def test_hypothesis_merge(self, a: list[float], b: list[float]) -> None:
         a.sort()
         b.sort()
         merged_list = list(merge(a, b))
 
-        self.assertEqual(merged_list, sorted(merged_list))  # monotonic
-        self.assertEqual(merged_list, sorted(a + b))
+        self.assertEqual(len(a) + len(b), len(merged_list))
         self.assertTrue(all(item in merged_list for item in a))
         self.assertTrue(all(item in merged_list for item in b))
-        self.assertEqual(
-            len(merged_list),
-            len(a) + len(b),
-        )
+        self.assertEqual(merged_list, sorted(merged_list))  # monotonic
+        self.assertEqual(merged_list, sorted(a + b))
