@@ -16,7 +16,7 @@ def merge(lst1: Sequence[float], lst2: Sequence[float]) -> Generator[float]:
     i, j = 0, 0
 
     while i < len(lst1) or j < len(lst2):
-        if i >= len(lst1) or lst1[i] >= lst2[j]:
+        if i >= len(lst1) or (j < len(lst2) and lst1[i] >= lst2[j]):
             yield lst2[j]
             j += 1
         else:

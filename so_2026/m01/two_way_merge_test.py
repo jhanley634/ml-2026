@@ -11,3 +11,7 @@ class TwoWayMergeTest(unittest.TestCase):
             [0, 0, 1, 1, 2, 3],
             list(merge(a, b)),
         )
+        self.assertEqual(
+            [0, 0, 1, 1, 2, 3],
+            list(merge(b, a)),
+        )
