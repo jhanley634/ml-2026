@@ -5,6 +5,8 @@ from hypothesis import strategies as st
 
 from so_2026.m01.two_way_merge import merge
 
+st_finite_floats = st.floats(allow_nan=False, allow_infinity=False)
+
 
 class TwoWayMergeTest(unittest.TestCase):
     def test_merge(self) -> None:
@@ -20,8 +22,8 @@ class TwoWayMergeTest(unittest.TestCase):
         )
 
     @given(
-        st.lists(st.floats(allow_nan=False, allow_infinity=False), min_size=0),
-        st.lists(st.floats(allow_nan=False, allow_infinity=False), min_size=0),
+        st.lists(st_finite_floats, min_size=0),
+        st.lists(st_finite_floats, min_size=0),
     )
     def test_hypothesis_merge(self, a: list[float], b: list[float]) -> None:
         a.sort()
