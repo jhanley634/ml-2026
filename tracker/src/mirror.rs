@@ -102,14 +102,15 @@ pub fn mirror() -> Result<(), MirrorError> {
     let mut cap = VideoCapture::new(0, 0)?;
     let frame_width = cap.get(videoio::CAP_PROP_FRAME_WIDTH)? as i32;
     let frame_height = cap.get(videoio::CAP_PROP_FRAME_HEIGHT)? as i32;
-    let is_mono = cap.get(videoio::CAP_PROP_MONOCHROME)? == 0.;
+    // CAP_PROP_MONOCHROME is 0 for color, 1 for monochrome; VideoWriter::new expects an isColor flag.
+    let is_color = cap.get(videoio::CAP_PROP_MONOCHROME)? == 0.;
 
     let mut writer = VideoWriter::new(
         "/tmp/output.avi",
         videoio::VideoWriter::fourcc('M', 'P', 'E', 'G')?,
         10.0,
         Size::new(frame_width, frame_height),
-        is_mono,
+        is_color,
     )?;
 
     let font = HersheyFonts::FONT_HERSHEY_SIMPLEX as i32;
