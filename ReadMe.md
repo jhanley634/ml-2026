@@ -5,6 +5,6 @@ Execute `$ make clean install test lint` to get started.
 ----
 
 This codebase is frequently tested under [Linux](https://ubuntu.com) and macOS.
-It is designed to work on all posix systems, including windows WSL 2.
+It is designed to work on all POSIX systems, including windows WSL 2.
 Please [report](https://github.com/jhanley634/ml-2026/issues)
 any rough edges you may encounter.
