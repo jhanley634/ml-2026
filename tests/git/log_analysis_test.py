@@ -82,6 +82,7 @@ class TestGitLogAnalysis(unittest.TestCase):
             datetime(2021, 5, 1, hour=10, tzinfo=UTC): 1,
             datetime(2021, 5, 1, hour=11, tzinfo=UTC): 1,
         }
+        self.assertEqual(3, len(sample_activity))
         expected_data = {
             datetime.combine(datetime(2021, 4, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,
             datetime.combine(datetime(2021, 5, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,

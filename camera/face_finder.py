@@ -4,11 +4,12 @@ from dataclasses import dataclass
 from queue import Queue
 from threading import Event, Thread
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import cv2
 import cv2.data
 import numpy as np
+from numpy._typing import NDArray
 
 if TYPE_CHECKING:
     from numpy._typing import NDArray
@@ -77,7 +78,6 @@ def face_detection_thread(stop_event: Event) -> None:
     face_cascade = cv2.CascadeClassifier(
         f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
     )
-    fps_counter = FPSCounter()
     prev_rect = None
     while not stop_event.is_set():
         try:

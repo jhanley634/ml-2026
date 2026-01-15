@@ -14,11 +14,14 @@ will contribute to the activity record.
 
 import subprocess
 from collections import defaultdict
-from collections.abc import Iterable
 from datetime import datetime
+from typing import TYPE_CHECKING
 from zoneinfo import ZoneInfo
 
 import pandas as pd
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 UTC = ZoneInfo("UTC")
 

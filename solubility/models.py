@@ -1,6 +1,7 @@
 #! /usr/bin/env YDATA_SUPPRESS_BANNER=1 python
 
-from pathlib import Path
+
+from typing import TYPE_CHECKING
 
 import matplotlib as mpl
 import matplotlib.pyplot as plt
@@ -12,12 +13,16 @@ from numpy.typing import NDArray
 from sklearn.ensemble import GradientBoostingRegressor, RandomForestRegressor
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 from sklearn.model_selection import train_test_split
-from sklearn.neural_network import MLPRegressor
 from sklearn.preprocessing import StandardScaler
 from sklearn.svm import SVR
 from xgboost.sklearn import XGBRegressor
 
 from solubility.eda import TMP, get_solubility_df
+
+if TYPE_CHECKING:
+    from pathlib import Path
+
+    from sklearn.neural_network import MLPRegressor
 
 
 def shuffle(df: pd.DataFrame) -> pd.DataFrame:
