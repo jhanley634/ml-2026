@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import sys
 from io import StringIO
 
 import pandas as pd
@@ -21,9 +22,12 @@ def _to_int(value: str) -> int:
     return int(number)
 
 
+assert sys.version_info > (3, 14)
+
+
 def _parse_date(date_str: str | float) -> str | None:
     """Parses a date string into an ISO 8601-compliant format."""
-    assert isinstance(date_str, str | float)
+    assert isinstance(date_str, (str, float))  # str | float
     date_str = str(date_str)
     try:
         clean_date_str = date_str.replace("*", "").strip()
