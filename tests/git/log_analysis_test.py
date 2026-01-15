@@ -13,13 +13,12 @@ UTC = ZoneInfo("UTC")
 
 class TestGitLogAnalysis(unittest.TestCase):
 
-    def __init__(self, *args: Any, **kwargs: Any) -> None:  # noqa
+    def setUp(self) -> None:
         self.parsed_commits = [
             (datetime(2021, 4, 1, 9, tzinfo=UTC), "Commit message 1"),
             (datetime(2021, 4, 1, 10, tzinfo=UTC), "Commit message 2"),
             (datetime(2021, 5, 1, 0, tzinfo=UTC), "Commit message 3"),
         ]
-        super().__init__(*args, **kwargs)
 
     def test_get_git_commits(self) -> None:
         mock_output = """\
