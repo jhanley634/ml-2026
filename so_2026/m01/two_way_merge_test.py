@@ -22,8 +22,8 @@ class TwoWayMergeTest(unittest.TestCase):
         )
 
     @given(
-        st.lists(st_finite_floats, min_size=0),
-        st.lists(st_finite_floats, min_size=0),
+        st.lists(st_finite_floats),
+        st.lists(st_finite_floats),
     )
     def test_hypothesis_merge(self, a: list[float], b: list[float]) -> None:
         a.sort()
