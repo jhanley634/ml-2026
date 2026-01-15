@@ -30,6 +30,7 @@ dev = [
     "mypy",
     "pre-commit",
     "pyright >= 1.1.407",
+    "pytest >= 9.0.2",
     "ruff",
     "safety",
     "types-python-dateutil",

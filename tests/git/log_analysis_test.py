@@ -33,7 +33,7 @@ class TestGitLogAnalysis(unittest.TestCase):
             # Assert subprocess is invoked with the expected git command and flags
             mocked_run.assert_called_once()
             called_args, called_kwargs = mocked_run.call_args
-            expected_command = ["git", "log", "--pretty=format:%ct %s"]
+            expected_command = ["git", "reflog", "--pretty=format:%at %gs"]
             self.assertEqual(called_args[0], expected_command)
             self.assertTrue(called_kwargs["check"])
             self.assertTrue(called_kwargs["capture_output"])
