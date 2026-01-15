@@ -1,6 +1,5 @@
 import unittest
 from datetime import datetime
-from typing import Any
 from unittest import mock
 from zoneinfo import ZoneInfo
 
@@ -52,8 +51,14 @@ class TestGitLogAnalysis(unittest.TestCase):
     def test_mark_intervals(self) -> None:
         # Add two commits that fall into the same half-hour interval as the existing 09:00 commit
         extra_commits = [
-            (datetime(2021, 4, 1, hour=9, minute=5, tzinfo=UTC), "extra commit in 09:00–09:30 interval A"),
-            (datetime(2021, 4, 1, hour=9, minute=25, tzinfo=UTC), "extra commit in 09:00–09:30 interval B"),
+            (
+                datetime(2021, 4, 1, hour=9, minute=5, tzinfo=UTC),
+                "extra commit in 09:00-09:30 interval A",
+            ),
+            (
+                datetime(2021, 4, 1, hour=9, minute=25, tzinfo=UTC),
+                "extra commit in 09:00-09:30 interval B",
+            ),
         ]
         activity = mark_intervals(self.parsed_commits + extra_commits)
 
