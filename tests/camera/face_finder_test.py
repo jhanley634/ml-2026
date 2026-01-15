@@ -11,7 +11,7 @@ class FaceFinderTest(unittest.TestCase):
             [
                 [200, 100, 40, 40],
                 [200, 100, 30, 30],
-            ]
+            ],
         )
         s = np.array(rects)
         s.sort(axis=0)

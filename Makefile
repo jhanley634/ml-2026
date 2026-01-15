@@ -21,9 +21,9 @@ STRICT = --strict --warn-unreachable --ignore-missing-imports --no-namespace-pac
 ruff-check:
 	$(ACTIVATE) && black . && ruff check --fix
 lint: ruff-check
+	$(ACTIVATE) && isort .
 	$(ACTIVATE) && pyright .
 	$(ACTIVATE) && mypy $(STRICT) .
-	$(ACTIVATE) && isort .
 
 test:
 	$(ACTIVATE) && python -m unittest */*/*_test.py
