@@ -1,0 +1,10 @@
+[package]
+name = "tracker"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+opencv = ">= 0.95.1"
+
+[build-dependencies]
+cmake = ">= 0.1.54"
