@@ -8,7 +8,8 @@ from pathlib import Path
 
 import kagglehub
 import pandas as pd
-from ydata_profiling import ProfileReport
+
+# from ydata_profiling import ProfileReport
 
 TMP = Path("/tmp")
 
@@ -21,10 +22,11 @@ def get_solubility_df() -> pd.DataFrame:
 
 
 def create_profile() -> None:
-    profile = ProfileReport(get_solubility_df(), title="Solubility Profiling Report")
     html = TMP / "solubility.html"
     if not html.exists():
-        profile.to_file(html)
+        print(html)
+        # profile = ProfileReport(get_solubility_df(), title="Solubility Profiling Report")
+        # profile.to_file(html)
 
 
 if __name__ == "__main__":
