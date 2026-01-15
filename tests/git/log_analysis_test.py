@@ -40,16 +40,22 @@ class TestGitLogAnalysis(unittest.TestCase):
             self.assertEqual(result[1], message)
 
     def test_mark_intervals(self) -> None:
-        activity = mark_intervals(self.parsed_commits)
+        # Add two commits that fall into the same half-hour interval as the existing 09:00 commit
+        extra_commits = [
+            (datetime(2021, 4, 1, hour=9, minute=5, tzinfo=UTC), "extra commit in 09:00–09:30 interval A"),
+            (datetime(2021, 4, 1, hour=9, minute=25, tzinfo=UTC), "extra commit in 09:00–09:30 interval B"),
+        ]
+        activity = mark_intervals(self.parsed_commits + extra_commits)
 
         expected_activity = {
-            datetime(2021, 4, 1, hour=9, tzinfo=UTC): 1,
+            # Original 09:00 bucket plus two extra commits in the same 30-minute interval
+            datetime(2021, 4, 1, hour=9, tzinfo=UTC): 3,
             datetime(2021, 4, 1, hour=10, tzinfo=UTC): 1,
             datetime(2021, 5, 1, hour=0, tzinfo=UTC): 1,
         }
         self.assertEqual(set(expected_activity.keys()), set(activity.keys()))
-        for day in activity:
-            self.assertEqual(expected_activity[day], activity[day])
+        for bucket in activity:
+            self.assertEqual(expected_activity[bucket], activity[bucket])
 
     def test_find_daily_counts(self) -> None:
         sample_activity = {
