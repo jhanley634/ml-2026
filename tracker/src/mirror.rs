@@ -77,7 +77,7 @@ impl FpsWriter {
     pub fn write_fps(&self, gray: &mut Mat, fps: Fps) -> Result<(), opencv::Error> {
         let text = fps.get_text(self.font, self.color, self.thickness);
         let mut base_line = 0;
-        let text_size = get_text_size(&text, self.font, 1.0, 0, &mut base_line).unwrap();
+        let text_size = get_text_size(&text, self.font, 1.0, 0, &mut base_line)?;
         let text_origin = (
             gray.cols() - text_size.width as i32 - 10,
             gray.rows() - text_size.height as i32 - 10,
