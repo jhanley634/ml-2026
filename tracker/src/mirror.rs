@@ -90,7 +90,7 @@ impl FpsWriter {
             1.0,
             self.color,
             self.thickness.round() as i32,
-            self.font,
+            opencv::imgproc::LINE_8 as i32,
             false,
         )
     }
