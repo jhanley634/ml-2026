@@ -29,6 +29,16 @@ class TestGitLogAnalysis(unittest.TestCase):
         with mock.patch("subprocess.run") as mocked_run:
             mocked_run.return_value.stdout = mock_output
             commits = get_git_commits()
+
+            # Assert subprocess is invoked with the expected git command and flags
+            mocked_run.assert_called_once()
+            called_args, called_kwargs = mocked_run.call_args
+            expected_command = ["git", "log", "--pretty=format:%ct %s"]
+            self.assertEqual(called_args[0], expected_command)
+            self.assertTrue(called_kwargs["check"])
+            self.assertTrue(called_kwargs["capture_output"])
+            self.assertTrue(called_kwargs["text"])
+
             self.assertEqual(len(commits), 3)
             for commit in commits:
                 self.assertIn(commit, mock_output.splitlines())
