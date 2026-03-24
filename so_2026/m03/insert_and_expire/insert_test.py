@@ -9,10 +9,11 @@ class InsertTest(unittest.TestCase):
         create_empty_table()
         ins(1)
 
+        elapsed_limit = 0.1
         t0 = time()
-        ins(40_000)
+        ins(4_000)  # at least 40k (often ~ 50k) rows per second
         elapsed = time() - t0
 
         if verbose:
             print(f"\n{elapsed=:06f}")
-        self.assertLess(elapsed, 1.0)
+        self.assertLess(elapsed, elapsed_limit)
