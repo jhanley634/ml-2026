@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
-assert sys.version_info >= (3, 13)
+assert sys.version_info >= (3, 14)
 assert sa.__version__ >= "2.0.45"
 
 temp = Path("/tmp/k")

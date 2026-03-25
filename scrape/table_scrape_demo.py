@@ -22,7 +22,7 @@ def _to_int(value: str) -> int:
     return int(number)
 
 
-assert sys.version_info >= (3, 13)
+assert sys.version_info >= (3, 14)
 
 
 def _parse_date(date_str: str | float) -> str | None:
@@ -33,7 +33,7 @@ def _parse_date(date_str: str | float) -> str | None:
         clean_date_str = date_str.replace("*", "").strip()
         parsed_date = date_parse(clean_date_str)
         return parsed_date.strftime("%Y-%m-%d")
-    except ValueError, TypeError:
+    except (ValueError, TypeError):
         return None
 
 
