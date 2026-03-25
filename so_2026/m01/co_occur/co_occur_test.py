@@ -31,3 +31,17 @@ class CoOccurTest(unittest.TestCase):
             [(7, 6), (7, 7), (7, 8), (8, 8), (8, 9)],
             list(map(tuple, np.array(c).tolist())),
         )
+
+    def test_no_coincidences(self) -> None:
+        a, b = map(
+            np.array,
+            (
+                [0, 1, 2],
+                [7, 8, 9],
+            ),
+        )
+        c = list(find_coincidences(a, b))
+        self.assertEqual(
+            [],
+            np.array(c).tolist(),
+        )
