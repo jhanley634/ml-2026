@@ -14,16 +14,20 @@ class CoOccurTest(unittest.TestCase):
         a, b = generate_decay_events()
         c = list(find_coincidences(a, b))
         self.assertEqual(38, len(c))
+        self.assertEqual(
+            [(86, 87), (89, 90), (139, 139), (160, 161)],
+            c[:4],
+        )
 
         a, b = map(
             np.array,
             (
-                [0, 1, 7],
-                [6, 7, 8],
+                [0, 1, 2, 7, 8, 30],
+                [5, 6, 7, 8, 9, 10],
             ),
         )
         c = list(find_coincidences(a, b))
         self.assertEqual(
-            [(7, 6), (7, 7), (7, 8)],
+            [(7, 6), (7, 7), (7, 8), (8, 8), (8, 9)],
             list(map(tuple, np.array(c).tolist())),
         )

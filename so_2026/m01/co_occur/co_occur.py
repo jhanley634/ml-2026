@@ -60,7 +60,8 @@ def find_coincidences(
             else:
                 i += 1
         else:
-            yield (a[i], b[j])
+            aa, bb = map(int, (a[i], b[j]))
+            yield aa, bb
             # Advance the pointer for the smaller timestamp to prevent duplicates
             # and ensure we don't get stuck in a loop.
             if a[i] < b[j]:
