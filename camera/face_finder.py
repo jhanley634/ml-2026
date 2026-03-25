@@ -4,12 +4,15 @@ from dataclasses import dataclass
 from queue import Queue
 from threading import Event, Thread
 from time import sleep, time
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import cv2
 import cv2.data
 import numpy as np
 from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from numpy._typing import NDArray
 
 
 class FPSCounter:

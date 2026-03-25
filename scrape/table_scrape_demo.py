@@ -22,7 +22,7 @@ def _to_int(value: str) -> int:
     return int(number)
 
 
-assert sys.version_info > (3, 14)
+assert sys.version_info >= (3, 14)
 
 
 def _parse_date(date_str: str | float) -> str | None:

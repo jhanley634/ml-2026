@@ -17,16 +17,17 @@ install: .venv
 	$(ACTIVATE) && pre-commit install
 
 STRICT = --strict --warn-unreachable --ignore-missing-imports --no-namespace-packages
+BLACK := black --target-version py313
 
 ruff-check:
-	$(ACTIVATE) && black . && ruff check --fix
+	$(ACTIVATE) && $(BLACK) . && ruff check --preview --fix
 lint: ruff-check
 	$(ACTIVATE) && isort .
 	$(ACTIVATE) && pyright .
 	$(ACTIVATE) && mypy $(STRICT) .
 
 test:
-	$(ACTIVATE) && python -m unittest */*/*_test.py
+	$(ACTIVATE) && python -m unittest */*/*_test.py so_2026/m??/*/*_test.py
 
 CACHES := .mypy_cache/ .pyre/ .pytype/ .ruff_cache/
 clean-caches:
