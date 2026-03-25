@@ -13,7 +13,7 @@ class CoOccurTest(unittest.TestCase):
     def test_find_coincidences(self) -> None:
         a, b = generate_decay_events()
         c = list(find_coincidences(a, b))
-        self.assertEqual(38, len(c))
+        self.assertEqual(37, len(c))
         self.assertEqual(
             [(86, 87), (89, 90), (139, 139), (160, 161)],
             c[:4],
@@ -28,7 +28,21 @@ class CoOccurTest(unittest.TestCase):
         )
         c = list(find_coincidences(a, b))
         self.assertEqual(
-            [(7, 6), (7, 7), (7, 8), (8, 8), (8, 9)],
+            [(7, 6), (7, 7), (8, 8)],  # (8, 9)],
+            list(map(tuple, np.array(c).tolist())),
+        )
+
+    def test_delta_three(self) -> None:
+        a, b = map(
+            np.array,
+            (
+                [0, 1, 2, 3, 8, 30],
+                [5, 6, 7, 8, 9, 10],
+            ),
+        )
+        c = list(find_coincidences(a, b, max_delta=3))
+        self.assertEqual(
+            [(2, 5), (3, 5), (8, 5), (8, 6), (8, 7), (8, 8)],
             list(map(tuple, np.array(c).tolist())),
         )
 

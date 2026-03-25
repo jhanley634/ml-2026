@@ -39,22 +39,18 @@ def find_coincidences(
     b: NDArray[np.int32],
     max_delta: int = 1,
 ) -> Generator[tuple[int, int]]:
+    """
+    Find events that co-occur within max_delta.
+    This is a 2-way merge of sorted inputs.
+    """
     assert len(a) == len(b)
     assert max_delta > 0
 
-    # Find events that co-occur within max_delta.
-    # This is a 2-way merge of sorted inputs.
     i, j = 0, 0
     while i < len(a) and j < len(b):
         diff = a[i] - b[j]
 
         if abs(diff) > max_delta:
-            # Outside the coincidence window.
-            # We must advance the pointer corresponding to the element that is lagging
-            # behind the other, effectively shrinking the window towards the valid range
-            # or advancing to match larger timestamps.
-            # If a[i] - b[j] > max_delta (a is ahead): b[j] is too old, increment j.
-            # If b[j] - a[i] > max_delta (b is ahead): a[i] is too old, increment i.
             if diff > 0:
                 j += 1
             else:
@@ -62,9 +58,13 @@ def find_coincidences(
         else:
             a_i, b_j = map(int, (a[i], b[j]))
             yield a_i, b_j
-            # Advance the pointer for the smaller timestamp to prevent duplicates
-            # and ensure we don't get stuck in a loop.
-            if a[i] < b[j]:
-                i += 1
+
+            if a[i] != b[j]:
+                if a[i] < b[j]:
+                    i += 1
+                else:
+                    j += 1
+            # exact match - advance both pointers
             else:
+                i += 1
                 j += 1
