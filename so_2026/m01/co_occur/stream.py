@@ -48,18 +48,20 @@ def merge_event_streams(
 def window(
     events: Generator[Event],
     window_size: int = 3,
-) -> Generator[tuple[Event, set[Event]]]:
+) -> Generator[tuple[Event, dict[int, Event]]]:
 
-    w: set[Event] = set()
+    stamp_to_event: dict[int, Event] = {}
     recent: deque[Event] = deque()
 
     for event in events:
-        yield event, w
-        w.add(event)
+        yield event, stamp_to_event
+        stamp_to_event[event.stamp] = event
         recent.append(event)
 
         if len(recent) > window_size:
             ancient = recent.popleft()
-            w.discard(ancient)
-        assert len(w) <= window_size
+            if ancient.stamp in stamp_to_event:
+                del stamp_to_event[ancient.stamp]
+
+        assert len(stamp_to_event) <= window_size
         assert len(recent) <= window_size
