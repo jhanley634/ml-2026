@@ -1,4 +1,5 @@
 import sys
+from collections import deque
 from dataclasses import dataclass
 from typing import TYPE_CHECKING
 
@@ -44,6 +45,21 @@ def merge_event_streams(
         j += 1
 
 
-def window(it: Generator[Event]) -> Generator[tuple[Event, set[Event]]]:
-    assert it
-    yield Event(0, 0), set()
+def window(
+    events: Generator[Event],
+    window_size: int = 3,
+) -> Generator[tuple[Event, set[Event]]]:
+
+    w: set[Event] = set()
+    recent: deque[Event] = deque()
+
+    for event in events:
+        yield event, w
+        w.add(event)
+        recent.append(event)
+
+        if len(recent) > window_size:
+            ancient = recent.popleft()
+            w.discard(ancient)
+        assert len(w) <= window_size
+        assert len(recent) <= window_size
