@@ -22,6 +22,7 @@ dependencies = [
     "sentence-transformers >= 5.3.0",
     "setuptools >= 82.0.1",
     "sqlalchemy >= 2.0.48",
+    "toml >= 0.10.2",
     "transformers >= 5.4.0",
     "ty >= 0.0.27",
     "xgboost >= 3.2.0",
@@ -38,6 +39,7 @@ dev = [
     "safety",
     "types-python-dateutil",
     "types-requests",
+    "types-toml",
 ]
 
 [tool.uv]
