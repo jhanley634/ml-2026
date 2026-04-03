@@ -13,6 +13,7 @@ def parse_uv_lock(in_file: Path) -> dict[str, str]:
     uv_lock_data = toml.load(in_file)
     packages = uv_lock_data["package"]
     uv_lock_versions = {}
+    assert isinstance(packages, list), type(packages)
     for pkg in packages:
         name = pkg["name"]
         version = pkg["version"]
@@ -24,6 +25,7 @@ def find_downrev_dependencies(
     pyproject_toml_path: Path,
     uv_lock_path: Path,
 ) -> list[Version]:
+
     pyproject_data = toml.load(pyproject_toml_path)
     dependencies = pyproject_data.get("project", {}).get("dependencies", [])
 
@@ -32,13 +34,16 @@ def find_downrev_dependencies(
     downrev_versions = []
 
     for dep in dependencies:
-        if dep.startswith("package=="):
-            package_name, version_spec = dep[len("package==") :].split("==")
-            specifier = Specifier(version_spec)
-            # Find the locked version that satisfies the specifier
-            locked_version = lock_data.get(package_name)
-            if locked_version and Version(locked_version) in specifier:
-                downrev_versions.append(Version(locked_version))
+        if ">=" in dep and dep.startswith("package"):
+            parts = dep.split(">=")
+            if len(parts) == 2:
+                package_name = parts[0]
+                version_spec = parts[1]
+                specifier = Specifier(f">= {version_spec}")
+                # Find the locked version that satisfies the specifier
+                locked_version = lock_data.get(package_name)
+                if locked_version and Version(locked_version) in specifier:
+                    downrev_versions.append(Version(locked_version))
 
     return downrev_versions
 
