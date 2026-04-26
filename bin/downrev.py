@@ -34,16 +34,21 @@ def find_downrev_dependencies(
     downrev_versions = []
 
     for dep in dependencies:
-        if ">=" in dep and dep.startswith("package"):
-            parts = dep.split(">=")
-            if len(parts) == 2:
-                package_name = parts[0]
-                version_spec = parts[1]
-                specifier = Specifier(f">= {version_spec}")
-                # Find the locked version that satisfies the specifier
-                locked_version = lock_data.get(package_name)
-                if locked_version and Version(locked_version) in specifier:
-                    downrev_versions.append(Version(locked_version))
+        if " " in dep:
+            name, specifier_str = dep.split(" ", 1)
+        else:
+            name, specifier_str = (
+                dep,
+                ">=0.0.0",
+            )
+
+        installed_version_str = lock_data.get(name)
+        if installed_version_str:
+            installed_version = Version(installed_version_str)
+            specifier = Specifier(specifier_str)
+
+            if installed_version not in specifier:
+                downrev_versions.append(installed_version)
 
     return downrev_versions
 
