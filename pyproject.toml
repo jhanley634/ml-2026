@@ -22,7 +22,6 @@ dependencies = [
     "sentence-transformers",
     "setuptools",
     "sqlalchemy",
-    "transformers",
     "xgboost",
 ]
 [dependency-groups]
