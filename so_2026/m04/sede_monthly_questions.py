@@ -23,8 +23,8 @@ def plot(
         pl.read_csv(infile)
         .with_columns(
             [
-                pl.col("Created").str.slice(0, 10).cast(pl.Date).alias("month"),
-                pl.col("").alias("questions"),
+                pl.col("Month").str.slice(0, 10).cast(pl.Date).alias("month"),
+                pl.col("Questions").alias("questions"),
             ],
         )
         .select(["month", "questions"])
