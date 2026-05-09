@@ -10,8 +10,8 @@ from pymc.progress_bar import ProgressBarManager
 
 st.title("PyMC + Nutpie Sampler")
 
-n_draws  = 1000
-n_tune   = 1000
+n_draws = 1000
+n_tune = 1000
 n_chains = 4
 
 if st.button("Run Sampling"):
@@ -30,14 +30,14 @@ if st.button("Run Sampling"):
             progress = min(completed / total_steps, 1.0)
             progress_bar.progress(
                 progress,
-                text=f"Sampling... {completed}/{total_steps} steps ({progress * 100:.1f}%)"
+                text=f"Sampling... {completed}/{total_steps} steps ({progress * 100:.1f}%)",
             )
         old_update(self, chain_idx, is_last, draw, tuning, stats)
 
     ProgressBarManager.update = new_update
 
     with pm.Model() as model:
-        mu  = pm.Normal("mu", mu=0, sigma=1)
+        mu = pm.Normal("mu", mu=0, sigma=1)
         obs = pm.Normal("obs", mu=mu, sigma=1, observed=[1, 2, 3])
 
         trace = pm.sample(
