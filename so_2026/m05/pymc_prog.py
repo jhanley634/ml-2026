@@ -10,7 +10,7 @@ from pymc.progress_bar import ProgressBarManager
 
 st.title("PyMC + Nutpie Sampler")
 
-n_draws = 1000
+n_draws = 20_000
 n_tune = 1000
 n_chains = 4
 
