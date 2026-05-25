@@ -10,6 +10,10 @@ temp = Path("/tmp")
 
 class DownrevTest(unittest.TestCase):
 
+    pyproject_content = ""
+    uv_lock_content = ""
+    uv_lock_path = pyproject_path = Path("/tmp")
+
     def setUp(self) -> None:
         self.pyproject_content = """
         [project]
