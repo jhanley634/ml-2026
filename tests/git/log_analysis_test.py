@@ -5,7 +5,12 @@ from zoneinfo import ZoneInfo
 
 import pandas as pd
 
-from git.log_analysis import find_daily_counts, get_git_commits, mark_intervals, parse_commit_line
+from gitter.log_analysis import (
+    find_daily_counts,
+    get_git_commits,
+    mark_intervals,
+    parse_commit_line,
+)
 
 UTC = ZoneInfo("UTC")
 

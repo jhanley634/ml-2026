@@ -80,7 +80,7 @@ def face_detection_thread(stop_event: Event) -> None:
     )
     prev_rect = None
     while not stop_event.is_set():
-        try:
+        try:  # noqa: PLW0717 too many statements within a try clause
             frame = frame_queue.get(timeout=1)  # Wait for a frame
             if len(frame.shape) == 3:  # (w, h, 3)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
