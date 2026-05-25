@@ -64,8 +64,8 @@ def plot(
     # sns.lineplot(ax=ax, data=df.to_pandas(), x="month", y="september", color="red", label="Sept")
     ax.set_xlabel("")
     ax.set_ylabel("Number of Questions")
-    ax.xaxis.set_major_locator(mdates.YearLocator())
-    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))
+    ax.xaxis.set_major_locator(mdates.YearLocator())  # type: ignore[no-untyped-call]
+    ax.xaxis.set_major_formatter(mdates.DateFormatter("%Y"))  # type: ignore[no-untyped-call]
     plt.xticks(rotation=45)
 
     plt.tight_layout()
