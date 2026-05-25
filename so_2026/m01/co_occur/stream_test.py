@@ -33,12 +33,11 @@ class StreamTest(unittest.TestCase):
             sorted(events),
         )
 
-    def test_window(self, window_size: int = 3, verbose: bool = False) -> None:
+    def test_window(self, window_size: int = 3, *, verbose: bool = False) -> None:
 
         merged = merge_event_streams(self.a, self.b)
         for e, s_to_e in window(merged, window_size=window_size):
             self.assertTrue(len(s_to_e) <= window_size)
             for i in range(window_size):
-                if event := s_to_e.get(e.stamp + i):
-                    if verbose:
-                        print(event)
+                if (event := s_to_e.get(e.stamp + i)) and verbose:
+                    print(event)

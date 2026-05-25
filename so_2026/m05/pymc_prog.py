@@ -23,7 +23,7 @@ if st.button("Run Sampling"):
 
     old_update = ProgressBarManager.update
 
-    def new_update(self, chain_idx, is_last, draw, tuning, stats):
+    def new_update(self, chain_idx, is_last, draw, tuning, stats) -> None:
         if not tuning:
             chain_draws[chain_idx] += 1
             completed = sum(chain_draws.values())
