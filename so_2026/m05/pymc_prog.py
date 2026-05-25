@@ -17,7 +17,7 @@ n_chains = 4
 if st.button("Run Sampling"):
 
     total_steps = n_draws * n_chains
-    chain_draws = {i: 0 for i in range(n_chains)}
+    chain_draws = dict.fromkeys(range(n_chains), 0)
 
     progress_bar = st.progress(0, text=f"Sampling for {n_chains * n_draws} steps...")
 
