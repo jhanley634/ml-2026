@@ -13,9 +13,9 @@ class CoOccurTest(unittest.TestCase):
     def test_find_coincidences(self) -> None:
         a, b = generate_decay_events()
         c = list(find_coincidences(a, b))
-        self.assertEqual(37, len(c))
+        self.assertEqual(36, len(c))
         self.assertEqual(
-            [(86, 87), (89, 90), (139, 139), (160, 161)],
+            [(89, 90), (139, 139), (160, 161), (165, 166)],
             c[:4],
         )
 

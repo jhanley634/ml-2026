@@ -85,7 +85,3 @@ def ins(num_recs: int = 100) -> None:
                 status="processed",
             )
             sess.add(row)
-
-
-if __name__ == "__main__":
-    ...

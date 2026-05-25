@@ -27,8 +27,9 @@ def generate_decay_events(size: int = 100) -> tuple[NDArray[np.int32], NDArray[n
 
     rng = np.random.default_rng(seed=42)
 
-    stamps_a = rng.integers(0, 1001, dtype=np.int32, size=size)
-    stamps_b = rng.integers(0, 1001, dtype=np.int32, size=size)
+    max_value = 1000
+    stamps_a = rng.integers(0, max_value, dtype=np.int32, size=size)
+    stamps_b = rng.integers(0, max_value, dtype=np.int32, size=size)
     stamps_a.sort()
     stamps_b.sort()
     return stamps_a, stamps_b
@@ -43,7 +44,6 @@ def find_coincidences(
     Find events that co-occur within max_delta.
     This is a 2-way merge of sorted inputs.
     """
-    assert len(a) == len(b)
     assert max_delta > 0
 
     i, j = 0, 0
