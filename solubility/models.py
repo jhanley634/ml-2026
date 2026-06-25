@@ -34,7 +34,7 @@ SEED = 42
 FltArr = NDArray[np.float64]
 
 
-def _arr(a: pd.DataFrame | list[None]) -> FltArr:
+def _arr(a: pd.DataFrame) -> FltArr:
     assert isinstance(a, pd.DataFrame)
     return np.array(a, dtype=np.float64)
 
@@ -46,10 +46,12 @@ def _train_test_split(
     *,
     random_seed: int = SEED,
 ) -> tuple[FltArr, FltArr, FltArr, FltArr]:
-    x_train, x_test, y_train, y_test = map(
-        _arr,
-        train_test_split(x, y, test_size=test_holdout_fraction, random_state=random_seed),
-    )
+
+    trn, tst = train_test_split(x, y, test_size=test_holdout_fraction, random_state=random_seed)
+    assert isinstance(trn, pd.DataFrame)
+    assert isinstance(tst, pd.DataFrame)
+
+    x_train, x_test, y_train, y_test = map(_arr, (trn, tst))
     return x_train, x_test, y_train.ravel(), y_test.ravel()
 
 

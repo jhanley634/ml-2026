@@ -1,5 +1,6 @@
 #! /usr/bin/env python
 
+import re
 from dataclasses import dataclass
 from functools import total_ordering
 from pathlib import Path
@@ -39,41 +40,43 @@ def parse_uv_lock(in_file: Path) -> dict[str, str]:
 
 
 def find_downrev_dependencies(
-    pyproject_toml_path: Path,
+    pyproject_toml: Path,
     uv_lock_path: Path,
 ) -> list[DownrevDep]:
-    pyproject_data = toml.load(pyproject_toml_path)
-    dependencies = pyproject_data.get("project", {}).get("dependencies", [])
+
+    pyproject_data = toml.load(pyproject_toml)
+    project_deps = pyproject_data.get("project", {}).get("dependencies", [])
 
     lock_data = parse_uv_lock(uv_lock_path)
 
     downrev_versions = []
 
-    for dep in dependencies:
+    for dep in project_deps:
         if " " in dep:
             name, specifier_str = dep.split(" ", 1)
+            assert re.search(r"^[>=]= ", specifier_str), dep
         else:
             name, specifier_str = (
                 dep,
-                ">=0.0.0",
+                ">= 0.0.0",
             )
 
         installed_version_str = lock_data.get(name)
-        if installed_version_str:
-            installed_version = Version(installed_version_str)
-            specifier = Specifier(specifier_str)
+        assert installed_version_str, f"{name} is not yet installed in the .venv/"
+        installed_version = Version(installed_version_str)
+        specifier = Specifier(specifier_str)
 
-            if installed_version not in specifier:
-                downrev_versions.append(DownrevDep(name, installed_version))
+        if installed_version not in specifier:
+            downrev_versions.append(DownrevDep(name, installed_version))
 
     return downrev_versions
 
 
 def main(
-    pyproject: Path = Path("pyproject.toml"),
+    pyproject_toml: Path = Path("pyproject.toml"),
     uv_lock: Path = Path("uv.lock"),
 ) -> None:
-    downrev_dependencies = find_downrev_dependencies(pyproject, uv_lock)
+    downrev_dependencies = find_downrev_dependencies(pyproject_toml, uv_lock)
 
     if downrev_dependencies:
         print("Dependencies with downrev versions:")
