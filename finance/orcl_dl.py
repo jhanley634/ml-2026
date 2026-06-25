@@ -19,6 +19,7 @@ def main(ticker: str = "ORCL") -> None:
     end = "2026-06-04"  # one day beyond, similar to range()
 
     df = yf.download(ticker, start=start, end=end, progress=False, auto_adjust=False)
+    assert df is not None
     df = df.rename(columns={"Adj Close": "adj_close"})
     df = df[["Open", "High", "Low", "Close", "adj_close", "Volume"]]
 

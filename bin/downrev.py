@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 from dataclasses import dataclass
+from functools import total_ordering
 from pathlib import Path
 
 import toml
@@ -10,9 +11,19 @@ from packaging.version import Version
 
 
 @dataclass(frozen=True)
+@total_ordering
 class DownrevDep:
     pkg: str
     version: Version
+
+    def __lt__(self, other: DownrevDep) -> bool:
+        return self.version < other.version
+
+    def __eq__(self, other: object) -> bool:
+        return isinstance(other, DownrevDep) and self.version == other.version
+
+    def __hash__(self) -> int:
+        return hash((self.pkg, self.version))
 
 
 def parse_uv_lock(in_file: Path) -> dict[str, str]:

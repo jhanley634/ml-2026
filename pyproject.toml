@@ -43,6 +43,7 @@ dependencies = [
     "ty >= 0.0.39",
     "watchdog >= 6.0.0",
     "xgboost >= 3.2.0",
+    "yfinance >= 1.4.1",
 ]
 [dependency-groups]
 dev = [
