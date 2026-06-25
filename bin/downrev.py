@@ -1,12 +1,18 @@
 #! /usr/bin/env python
 
-
+from dataclasses import dataclass
 from pathlib import Path
 
 import toml
 import typer
 from packaging.specifiers import Specifier
 from packaging.version import Version
+
+
+@dataclass(frozen=True)
+class DownrevDep:
+    pkg: str
+    version: Version
 
 
 def parse_uv_lock(in_file: Path) -> dict[str, str]:
@@ -24,8 +30,7 @@ def parse_uv_lock(in_file: Path) -> dict[str, str]:
 def find_downrev_dependencies(
     pyproject_toml_path: Path,
     uv_lock_path: Path,
-) -> list[Version]:
-
+) -> list[DownrevDep]:
     pyproject_data = toml.load(pyproject_toml_path)
     dependencies = pyproject_data.get("project", {}).get("dependencies", [])
 
@@ -48,7 +53,7 @@ def find_downrev_dependencies(
             specifier = Specifier(specifier_str)
 
             if installed_version not in specifier:
-                downrev_versions.append(installed_version)
+                downrev_versions.append(DownrevDep(name, installed_version))
 
     return downrev_versions
 

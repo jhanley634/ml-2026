@@ -3,7 +3,7 @@ from pathlib import Path
 
 from packaging.version import Version
 
-from bin.downrev import find_downrev_dependencies
+from bin.downrev import DownrevDep, find_downrev_dependencies
 
 temp = Path("/tmp")
 
@@ -48,10 +48,10 @@ class DownrevTest(unittest.TestCase):
         self.uv_lock_path.unlink(missing_ok=True)
 
     def test_find_downrev_dependencies(self) -> None:
-        expected_downrev_versions = [Version("2.33.1")]
+        expected_downrev_versions = [DownrevDep("requests", Version("2.33.1"))]
         downrev_dependencies = find_downrev_dependencies(self.pyproject_path, self.uv_lock_path)
 
         self.assertEqual(
-            sorted(downrev_dependencies),
             sorted(expected_downrev_versions),
+            sorted(downrev_dependencies),
         )
