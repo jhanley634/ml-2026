@@ -1,10 +1,13 @@
 #! /usr/bin/env python
 
 from pathlib import Path
-from typing import Iterable
+from typing import TYPE_CHECKING
 
 import pandas as pd
 import yfinance as yf
+
+if TYPE_CHECKING:
+    from collections.abc import Iterable
 
 
 def round_to_cents(prices: Iterable[float]) -> list[float]:

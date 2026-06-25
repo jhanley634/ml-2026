@@ -50,7 +50,7 @@ dev = [
     "isort",
     "mypy",
     "pre-commit",
-    "pyright >= 1.1.410",
+    "pyright >= 1.1.411",
     "pytest",
     "ruff",
     "safety",

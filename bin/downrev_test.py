@@ -12,21 +12,22 @@ class DownrevTest(unittest.TestCase):
 
     pyproject_content = ""
     uv_lock_content = ""
+
     uv_lock_path = pyproject_path = Path("/tmp")
 
     def setUp(self) -> None:
         self.pyproject_content = """
         [project]
         dependencies = [
-            "numpy >= 2.4.0",
-            "requests >= 2.33.0",
+            "numpy >= 2.3.3",
+            "requests >= 2.99.0",
         ]
         """
 
         self.uv_lock_content = """
         [[package]]
         name = "numpy"
-        version = "2.4.4"
+        version = "2.4.5"
 
         [[package]]
         name = "requests"
@@ -47,8 +48,10 @@ class DownrevTest(unittest.TestCase):
         self.uv_lock_path.unlink(missing_ok=True)
 
     def test_find_downrev_dependencies(self) -> None:
-        expected_downrev_versions = [Version("2.32.0")]
+        expected_downrev_versions = [Version("2.33.1")]
         downrev_dependencies = find_downrev_dependencies(self.pyproject_path, self.uv_lock_path)
-        print(downrev_dependencies)
 
-        self.assertEqual(sorted(downrev_dependencies), sorted(expected_downrev_versions))
+        self.assertEqual(
+            sorted(downrev_dependencies),
+            sorted(expected_downrev_versions),
+        )
