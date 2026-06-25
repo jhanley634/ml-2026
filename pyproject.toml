@@ -38,6 +38,7 @@ dependencies = [
     "sqlalchemy >= 2.0.50",
     "streamlit >= 1.57.0",
     "toml >= 0.10.2",
+    "torch >= 2.10.0",
     "transformers >= 5.9.0",
     "ty >= 0.0.39",
     "watchdog >= 6.0.0",
