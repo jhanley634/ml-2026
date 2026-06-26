@@ -19,8 +19,8 @@ class DownrevTest(unittest.TestCase):
         self.pyproject_content = """
         [project]
         dependencies = [
-            "numpy >= 2.3.3",
-            "requests >= 2.99.0",
+            "numpy >= 2.4.5",
+            "requests >= 2.20.0",
         ]
         """
 

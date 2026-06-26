@@ -7,8 +7,9 @@ from pathlib import Path
 
 import toml
 import typer
-from packaging.specifiers import Specifier
 from packaging.version import Version
+
+# from packaging.specifiers import Specifier
 
 
 @dataclass(frozen=True)
@@ -64,9 +65,10 @@ def find_downrev_dependencies(
         installed_version_str = lock_data.get(name)
         assert installed_version_str, f"{name} is not yet installed in the .venv/"
         installed_version = Version(installed_version_str)
-        specifier = Specifier(specifier_str)
+        assert str(installed_version) == installed_version_str
+        # specifier = Specifier(specifier_str)
 
-        if installed_version not in specifier:
+        if f"{installed_version}" != specifier_str.lstrip(">= "):
             downrev_versions.append(DownrevDep(name, installed_version))
 
     return downrev_versions
