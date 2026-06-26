@@ -25,6 +25,7 @@ lint: ruff-check
 	$(ACTIVATE) && isort .
 	$(ACTIVATE) && pyright .
 	$(ACTIVATE) && mypy $(STRICT) .
+	$(ACTIVATE) && ty check
 
 test:
 	$(ACTIVATE) && python -m unittest */*/*_test.py so_2026/m??/*/*_test.py

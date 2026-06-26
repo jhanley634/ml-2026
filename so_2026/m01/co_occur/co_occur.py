@@ -31,8 +31,11 @@ def generate_decay_events(size: int = 100) -> tuple[NDArray[np.int32], NDArray[n
     stamps_a = rng.integers(0, max_value, dtype=np.int32, size=size)
     stamps_b = rng.integers(0, max_value, dtype=np.int32, size=size)
     stamps_a.sort()
-    stamps_b.sort()
-    return stamps_a, stamps_b
+    stamps_b.sort()  # `ty` believes this turns 32 --> 64-bit int, but it doesn't
+    return (
+        stamps_a.astype(np.int32),
+        stamps_b.astype(np.int32),
+    )
 
 
 def find_coincidences(
