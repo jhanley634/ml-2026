@@ -1,3 +1,4 @@
+import string
 import unittest
 
 from hypothesis import given
@@ -10,13 +11,11 @@ def rot13(clear: str) -> str:
     def shift_char(ch: str, shift: int) -> str:
         if "a" <= ch <= "z":
             return chr((ord(ch) - ord("a") + shift) % 26 + ord("a"))
-        elif "A" <= ch <= "Z":
+        if "A" <= ch <= "Z":
             return chr((ord(ch) - ord("A") + shift) % 26 + ord("A"))
-        else:
-            return ch
+        return ch
 
-    result = "".join(shift_char(ch, 13) for ch in clear)
-    return result
+    return "".join(shift_char(ch, 13) for ch in clear)
 
 
 class Rot13Test(unittest.TestCase):
@@ -25,8 +24,8 @@ class Rot13Test(unittest.TestCase):
         """rot13(rot13(s)) is the identity function."""
         test_strings: list[str] = [
             "Hello, World!",
-            "abcdefghijklmnopqrstuvwxyz",
-            "ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+            string.ascii_lowercase,
+            string.ascii_uppercase,
             "",
             "12345!@#$%",
             "This is a test.",
