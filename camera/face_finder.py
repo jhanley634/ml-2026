@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, Any
 import cv2
 import cv2.data
 import numpy as np
+from cv2 import UMat
 from numpy.typing import NDArray
 
 if TYPE_CHECKING:
@@ -70,36 +71,46 @@ class SmoothedRect:
 smooth = SmoothedRect()
 
 
+face_cascade = cv2.CascadeClassifier(
+    f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
+)
+
+
 def face_detection_thread(stop_event: Event) -> None:
     """
     Background thread for face detection.  Processes frames from the queue.
     """
 
-    face_cascade = cv2.CascadeClassifier(
-        f"{cv2.data.haarcascades}haarcascade_frontalface_default.xml",
-    )
     prev_rect = None
     while not stop_event.is_set():
-        try:  # noqa: PLW0717 too many statements within a try clause
+        try:
             frame = frame_queue.get(timeout=1)  # Wait for a frame
             if len(frame.shape) == 3:  # (w, h, 3)
                 frame = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
-            faces = face_cascade.detectMultiScale(frame, 1.1, 4)
-            faces2 = np.array(faces)
-            faces3 = sorted(faces2, reverse=True, key=order_by_size)[:MAX_FACES]
-
-            if len(faces3) > 0:
-                current_rect = faces3[0]
-                if prev_rect is not None:
-                    smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
-                    x, y, w, h = np.round(prev_rect + smoothed).astype(int)
-                    smooth.rect = (x, y, w, h)
-                prev_rect = current_rect
+            prev_rect = _detect_multiscale(frame, prev_rect)
 
             frame_queue.task_done()
         except queue.Empty:
             # No frame available, continue to next iteration
             pass
+
+
+def _detect_multiscale(frame: UMat, prev_rect: UMat | None) -> UMat:
+    faces = face_cascade.detectMultiScale(frame, 1.1, 4)
+    faces2 = np.array(faces)
+    faces3 = sorted(faces2, reverse=True, key=order_by_size)[:MAX_FACES]
+
+    if len(faces3) > 0:
+        current_rect = faces3[0]
+        if prev_rect is not None:
+            smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
+            x, y, w, h = np.round(prev_rect + smoothed).astype(int)
+            smooth.rect = (x, y, w, h)
+        prev_rect = current_rect
+
+    assert prev_rect is not None
+
+    return prev_rect
 
 
 def face_finder() -> None:
