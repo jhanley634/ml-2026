@@ -1,5 +1,10 @@
 #! /usr/bin/env python
 
+from hypothesis import given
+from hypothesis import strategies as st
+
+from so_2026.m09.proofs.isqrt import TOO_BIG as big
+
 
 def mul(a: int, b: int) -> int:
     """
@@ -19,6 +24,15 @@ def mul(a: int, b: int) -> int:
     return sgnum * p
 
 
+@given(st.integers(), st.integers())
+def test_mul(a: int, b: int):
+    p = mul(a, b)
+    expected = a * b
+    assert p == expected, f"{p=},  {expected=}"
+
+
 if __name__ == "__main__":
-    print(mul(7, 6))
-    print(mul(6, -7))
+    assert mul(6, -7) == -42
+    assert mul(big, big) == big**2
+
+    test_mul()
