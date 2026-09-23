@@ -29,7 +29,7 @@ def isqrt(n: int) -> int:
 
 
 @given(st.integers(min_value=0))
-def _test_isqrt(n):
+def _test_isqrt(n: int) -> None:
     r = isqrt(n)
     assert r**2 <= n < (r + 1) ** 2
 

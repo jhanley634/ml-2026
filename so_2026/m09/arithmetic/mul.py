@@ -3,7 +3,7 @@
 from hypothesis import given
 from hypothesis import strategies as st
 
-from so_2026.m09.proofs.isqrt import TOO_BIG as big
+from so_2026.m09.proofs.isqrt import TOO_BIG as BIG
 
 
 def mul(a: int, b: int) -> int:
@@ -25,7 +25,7 @@ def mul(a: int, b: int) -> int:
 
 
 @given(st.integers(), st.integers())
-def test_mul(a: int, b: int):
+def test_mul(a: int, b: int) -> None:
     p = mul(a, b)
     expected = a * b
     assert p == expected, f"{p=},  {expected=}"
@@ -33,6 +33,6 @@ def test_mul(a: int, b: int):
 
 if __name__ == "__main__":
     assert mul(6, -7) == -42
-    assert mul(big, big) == big**2
+    assert mul(BIG, BIG) == BIG**2
 
     test_mul()
