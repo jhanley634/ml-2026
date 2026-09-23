@@ -6,16 +6,15 @@ from hypothesis import strategies as st
 
 def div(a: int, b: int) -> tuple[int, int]:
     """
-        Performs integer division of A by B using only addition, subtraction, and bitwise
-    operations.
-        Returns the quotient and remainder.
+    Performs integer division of A by B using only subtraction and bitwise operations.
+    Returns the quotient and remainder.
     """
 
     if b == 0:
         raise ZeroDivisionError
 
     sgnum = -1 if (a < 0) ^ (b < 0) else 1
-    orig_a, orig_b = a, b
+    orig_b = b
 
     a, b = map(abs, (a, b))
     quo = 0
@@ -29,7 +28,7 @@ def div(a: int, b: int) -> tuple[int, int]:
     assert quo >= 0
     assert rem in range(b)
 
-    if orig_a * orig_b < 0:
+    if sgnum == -1:
         quo += 1
         rem = abs(rem - b) % b
 
