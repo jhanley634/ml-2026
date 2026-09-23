@@ -14,9 +14,7 @@ def div(a: int, b: int) -> tuple[int, int]:
     if b == 0:
         raise ZeroDivisionError
 
-    sgnum = 1 if (a < 0) == (b < 0) else -1
     sgnum = -1 if (a < 0) ^ (b < 0) else 1
-    print(f"{sgnum=}   {a=}   {b=}")
     orig_a, orig_b = a, b
 
     a, b = map(abs, (a, b))
@@ -31,12 +29,7 @@ def div(a: int, b: int) -> tuple[int, int]:
     assert quo >= 0
     assert rem in range(b)
 
-    if orig_a < 0 and orig_b >= 0:
-        quo += 1
-        rem = abs(rem - b) % b
-
-    if orig_a >= 0 and orig_b < 0:
-        print(f"{orig_a=}  {orig_b=}  {quo=} {rem=}")
+    if orig_a * orig_b < 0:
         quo += 1
         rem = abs(rem - b) % b
 
