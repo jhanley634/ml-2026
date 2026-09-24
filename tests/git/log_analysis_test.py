@@ -88,9 +88,12 @@ class TestGitLogAnalysis(unittest.TestCase):
             datetime(2021, 5, 1, hour=11, tzinfo=UTC): 1,
         }
         self.assertEqual(3, len(sample_activity))
+
+        start_date = datetime(2021, 4, 1, tzinfo=UTC)
+        end_date = datetime(2021, 5, 1, tzinfo=UTC)
         expected_data = {
-            datetime.combine(datetime(2021, 4, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,
-            datetime.combine(datetime(2021, 5, 1, tzinfo=UTC), datetime.min.time(), tzinfo=UTC): 2,
+            datetime.combine(start_date, datetime.min.time(), tzinfo=UTC): 2,
+            datetime.combine(end_date, datetime.min.time(), tzinfo=UTC): 2,
         }
         expected_df = pd.DataFrame(
             {
@@ -98,6 +101,9 @@ class TestGitLogAnalysis(unittest.TestCase):
                 "count": expected_data.values(),
             },
         ).set_index("stamp")
+        date_range = pd.date_range(start=start_date, end=end_date, freq="30D")
+        expected_df = expected_df.reindex(date_range, fill_value=0)
+        expected_df.index.name = "stamp"
 
         result_df = find_daily_counts(sample_activity)
 

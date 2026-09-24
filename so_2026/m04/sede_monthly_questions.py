@@ -23,8 +23,8 @@ def plot(
         pl.read_csv(infile)
         .with_columns(
             [
-                pl.col("Month").str.slice(0, 10).cast(pl.Date).alias("month"),
-                pl.col("Questions").alias("questions"),
+                pl.col("Created").str.slice(0, 10).cast(pl.Date).alias("month"),
+                pl.col("").alias("questions"),
             ],
         )
         .select(["month", "questions"])
@@ -49,7 +49,7 @@ def plot(
     )
     print(df)
 
-    sns.set(style="whitegrid")
+    sns.set_theme(style="whitegrid")
     plt.figure(figsize=(12, 6))
     ax = sns.lineplot(data=df.to_pandas(), x="month", y="questions", marker="o")
     sns.lineplot(
