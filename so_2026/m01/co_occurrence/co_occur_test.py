@@ -1,8 +1,16 @@
 import unittest
+from typing import TYPE_CHECKING
 
 import numpy as np
 
 from so_2026.m01.co_occurrence.co_occur import find_coincidences, generate_decay_events
+
+if TYPE_CHECKING:
+    from numpy.typing import NDArray
+
+
+def np_array_int32(xs: list[int]) -> NDArray[np.int32]:
+    return np.array(xs, dtype=np.int32)
 
 
 class CoOccurTest(unittest.TestCase):
@@ -20,7 +28,7 @@ class CoOccurTest(unittest.TestCase):
         )
 
         a, b = map(
-            np.array,
+            np_array_int32,
             (
                 [0, 1, 2, 7, 8, 30],
                 [5, 6, 7, 8, 9, 10],
@@ -34,7 +42,7 @@ class CoOccurTest(unittest.TestCase):
 
     def test_delta_three(self) -> None:
         a, b = map(
-            np.array,
+            np_array_int32,
             (
                 [0, 1, 2, 3, 8, 30],
                 [5, 6, 7, 8, 9, 10],
@@ -48,7 +56,7 @@ class CoOccurTest(unittest.TestCase):
 
     def test_no_coincidences(self) -> None:
         a, b = map(
-            np.array,
+            np_array_int32,
             (
                 [0, 1, 2],
                 [7, 8, 9],
