@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from so_2026.m01.co_occur.co_occur import find_coincidences, generate_decay_events
+from so_2026.m01.co_occurrence.co_occur import find_coincidences, generate_decay_events
 
 
 class CoOccurTest(unittest.TestCase):

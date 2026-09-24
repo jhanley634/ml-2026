@@ -1,8 +1,8 @@
 import unittest
 from typing import TYPE_CHECKING
 
-from so_2026.m01.co_occur.co_occur import generate_decay_events
-from so_2026.m01.co_occur.stream import merge_event_streams, window
+from so_2026.m01.co_occurrence.co_occur import generate_decay_events
+from so_2026.m01.co_occurrence.stream import merge_event_streams, window
 
 if TYPE_CHECKING:
 
