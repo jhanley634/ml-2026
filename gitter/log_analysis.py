@@ -74,9 +74,7 @@ def find_daily_counts(activity: dict[datetime, int]) -> pd.DataFrame:
 
     # Now resample at daily frequency, summing up each day's counts.
     ret = df.resample("D").sum()
-    ret = ret[ret["count"] > 0]
-    ret.index.freq = None
-    return ret
+    return ret[ret["count"] > 0]
 
 
 def main() -> None:
