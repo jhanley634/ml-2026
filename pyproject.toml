@@ -35,6 +35,7 @@ dependencies = [
     "pyarrow >= 25.0.1",
     "pymc >= 6.3.2",
     "pypdf >= 6.19.0",
+    "pyrefly >= 1.3.1",
     "pyttsx3 >= 2.99",
     "requests >= 2.34.2",
     "scikit-image >= 0.26.0",
@@ -106,3 +107,7 @@ ignore = [
 
 [tool.ruff.lint.flake8-annotations]
 mypy-init-return = true
+
+[tool.pyrefly]
+project-excludes = ["**/*/.venv/"]
+preset = "legacy"
