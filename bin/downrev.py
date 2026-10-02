@@ -53,6 +53,8 @@ def find_downrev_dependencies(
     downrev_versions = []
 
     for dep in project_deps:
+        if " < " in dep:  # skip "opencv-python < 5"
+            continue
         if " " in dep:
             name, specifier_str = dep.split(" ", 1)
             assert re.search(r"^[>=]= ", specifier_str), dep

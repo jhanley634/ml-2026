@@ -45,6 +45,7 @@ dependencies = [
     "seaborn >= 0.13.2",
     "sentence-transformers >= 6.1.0",
     "setuptools >= 84.0.0",
+    "shapely >= 2.1.2",
     "sqlalchemy >= 2.0.54",
     "streamlit >= 1.64.0",
     "toml >= 0.10.2",
