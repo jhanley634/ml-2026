@@ -95,7 +95,10 @@ def face_detection_thread(stop_event: Event) -> None:
             pass
 
 
-def _detect_multiscale(frame: UMat, prev_rect: UMat | None) -> UMat:
+def _detect_multiscale(
+    frame: UMat,
+    prev_rect: NDArray[np.int32] | None,
+) -> NDArray[np.int32]:
     faces = face_cascade.detectMultiScale(frame, 1.1, 4)
     faces2 = np.array(faces)
     faces3 = sorted(faces2, reverse=True, key=order_by_size)[:MAX_FACES]
@@ -103,6 +106,7 @@ def _detect_multiscale(frame: UMat, prev_rect: UMat | None) -> UMat:
     if len(faces3) > 0:
         current_rect = faces3[0]
         if prev_rect is not None:
+            prev_rect = np.asarray(prev_rect)
             smoothed = SMOOTH_FRAC * (current_rect - prev_rect)
             x, y, w, h = np.round(prev_rect + smoothed).astype(int)
             smooth.rect = (x, y, w, h)
