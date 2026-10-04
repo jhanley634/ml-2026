@@ -58,6 +58,7 @@ dependencies = [
 ]
 [dependency-groups]
 dev = [
+    "beartype >= 0.22.9",
     "black",
     "isort",
     "mypy",
