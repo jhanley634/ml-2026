@@ -3,7 +3,7 @@ import queue
 from dataclasses import dataclass
 from queue import Queue
 from threading import Event, Thread
-from time import sleep, time
+from time import time
 from typing import TYPE_CHECKING, Any
 
 import cv2
@@ -94,6 +94,10 @@ def face_detection_thread(stop_event: Event) -> None:
             # No frame available, continue to next iteration
             pass
 
+    while not frame_queue.empty():
+        frame_queue.get_nowait()
+        frame_queue.task_done()
+
 
 def _detect_multiscale(
     frame: UMat,
@@ -159,5 +163,4 @@ def face_finder() -> None:
     stop_event.set()
     cap.release()
     cv2.destroyAllWindows()
-    sleep(0.5)
     frame_queue.join()  # Wait for task_done() calls to complete before exiting
