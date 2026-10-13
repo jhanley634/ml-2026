@@ -31,6 +31,7 @@ dependencies = [
     "pipdeptree >= 4.2.5",
     "polars >= 1.44.2",
     "pyarrow >= 25.0.1",
+    "pygame-ce >= 2.5.8",
     "pymc >= 6.3.2",
     "pypdf >= 6.19.0",
     "pyttsx3 >= 2.99",

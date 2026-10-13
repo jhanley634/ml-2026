@@ -17,10 +17,10 @@ class InverseCrcTest(unittest.TestCase):
             self.assertGreaterEqual(calc_crc(msg), 0)
 
     def test_find_matching_crc(self) -> None:
-        print(find_matching_crc(1, M0_CRC, bytearray(M0)))
+        print(find_matching_crc(M0_CRC, bytearray(M0)))
 
         m1 = bytearray(M0)
         m1[0] = ord("1")  # "1hello"
-        print(find_matching_crc(1, M0_CRC, m1))
+        print(find_matching_crc(M0_CRC, m1))
 
         self.assertGreater(3, 2)
