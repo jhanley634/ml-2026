@@ -32,27 +32,7 @@ class BlockAll(CookiePolicy):
     rfc2965 = hide_cookie2 = False
 
     def set_ok(self, cookie: Cookie, request: MockRequest | Request) -> bool:
-        assert self
-        assert cookie
-        assert request
-        return False
-
-    def return_ok(self, cookie: Cookie, request: Request) -> bool:
-        assert self
-        assert cookie
-        assert request
-        return False
-
-    def domain_return_ok(self, domain: str, request: Request) -> bool:
-        assert self
-        assert domain
-        assert request
-        return False
-
-    def path_return_ok(self, path: str, request: Request) -> bool:
-        assert self
-        assert path
-        assert request
+        assert f"{self}, {cookie}, {request}"
         return False
 
 
