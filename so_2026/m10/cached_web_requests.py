@@ -26,7 +26,7 @@ uniq = {
 # @beartype
 class BlockAll(CookiePolicy):
     netscape = True
-    rfc2965 = hide_cookie2 = False
+    rfc2965 = False
 
     def set_ok(self, cookie: Cookie, request: MockRequest | Request) -> bool:
         assert len(f"{self}, {cookie}, {request}") > 0
