@@ -1,5 +1,5 @@
 #! /usr/bin/env python
-
+# ruff: file-ignore[complex-structure, too-many-branches, too-many-locals, too-many-statements]
 import zlib
 
 from so_2026.m10.inverse_crc_table import crc32_table
@@ -21,7 +21,12 @@ def calc_crc(data: bytes | bytearray, *, verbose: bool = False) -> int:
     return crc
 
 
-def find_matching_crc_initial_sketch(
+def _bytes_from_crc(crc: int) -> tuple[int, int, int, int]:
+    """Return the 4 little-endian bytes of a CRC value."""
+    return crc & 0xFF, (crc >> 8) & 0xFF, (crc >> 16) & 0xFF, (crc >> 24) & 0xFF
+
+
+def find_matching_crc(
     target_crc: int,
     msg: bytearray,
 ) -> bytearray:
@@ -30,75 +35,61 @@ def find_matching_crc_initial_sketch(
 
     The final four bytes of `msg` are replaced with bytes that make the CRC work out.
     """
-    assert len(msg) > 4
+    if len(msg) <= 4:
+        raise ValueError("msg must be longer than 4 bytes")
+
     prefix_bytes = bytes(msg[:-4])
-    print(prefix_bytes)
+    existing_crc = calc_crc(prefix_bytes)
+
+    a0, a1, a2, a3 = _bytes_from_crc(existing_crc ^ 0xFFFFFFFF)
+    f0, f1, f2, f3 = _bytes_from_crc(target_crc ^ 0xFFFFFFFF)
+
+    e_index = next(
+        i for i in range(256) if (crc32_table[i] & 0xFF000000) == (target_crc & 0xFF000000)
+    )
+    e0 = crc32_table[e_index] & 0xFF
+    e1 = (crc32_table[e_index] >> 8) & 0xFF
+    e2 = (crc32_table[e_index] >> 16) & 0xFF
+    # (crc32_table[e_index] >> 24) & 0xFF  # not needed
+
+    # d_index – third byte
+    d3 = f2 ^ e2
+    d_index = next(i for i in range(256) if (crc32_table[i] & 0xFF000000) == (d3 << 24))
+    d0 = crc32_table[d_index] & 0xFF
+    d1 = (crc32_table[d_index] >> 8) & 0xFF
+    d2 = (crc32_table[d_index] >> 16) & 0xFF
+    d3 = (crc32_table[d_index] >> 24) & 0xFF
+
+    # c_index – second byte
+    c3 = f1 ^ e1 ^ d2
+    c_index = next(i for i in range(256) if (crc32_table[i] & 0xFF000000) == (c3 << 24))
+    c0 = crc32_table[c_index] & 0xFF
+    c1 = (crc32_table[c_index] >> 8) & 0xFF
+    c2 = (crc32_table[c_index] >> 16) & 0xFF
+    c3 = (crc32_table[c_index] >> 24) & 0xFF
+
+    # b_index – first byte
+    b3 = f0 ^ e0 ^ d1 ^ c2
+    b_index = next(i for i in range(256) if (crc32_table[i] & 0xFF000000) == (b3 << 24))
+    b0 = crc32_table[b_index] & 0xFF
+    b1 = (crc32_table[b_index] >> 8) & 0xFF
+    b2 = (crc32_table[b_index] >> 16) & 0xFF
+    b3 = (crc32_table[b_index] >> 24) & 0xFF
+
+    table_idx = [b_index, c_index, d_index, e_index]
+
+    # Start with the inverted CRC of the prefix
+    crc = existing_crc ^ 0xFFFFFFFF
+
+    patch = bytearray(4)
     for i in range(4):
-        msg[-i] = 0
+        patch[i] = (crc ^ table_idx[i]) & 0xFF
+        crc = (crc >> 8) ^ crc32_table[patch[i] ^ (crc & 0xFF)]
 
-    # ...
-
-    assert prefix_bytes == bytes(msg[:-4])
-    assert target_crc == calc_crc(msg)
-    return msg
-
-
-def find_reverse_crc(target_crc: int, known_crc: int) -> bytes:
-
-    required_suffix_crc = target_crc ^ known_crc
-
-    crc32 = Crc32()
-    crc32.crc_ = known_crc
-    return crc32.find_reverse(required_suffix_crc)
-
-
-def find_matching_crc(target_crc: int, msg: bytearray) -> bytearray:
-    assert len(msg) > 4
-    prefix_bytes = bytes(msg[:-4])
-    known_crc = calc_crc(prefix_bytes)
-    suffix_bytes = find_reverse_crc(target_crc, known_crc)
-    msg[-4:] = suffix_bytes
-
+    msg[-4:] = patch
     assert target_crc == calc_crc(msg), (target_crc, calc_crc(msg), msg)
-
+    assert prefix_bytes == bytes(msg[:-4])
     return msg
-
-
-class Crc32:
-    def __init__(self) -> None:
-        self.crc_ = 0
-
-    def append(self, value: int) -> None:
-        self.crc_ = (self.crc_ >> 8) ^ crc32_table[value ^ (self.crc_ & 0xFF)]
-
-    def find_reverse(self, desired_crc: int) -> bytes:
-        """
-        Find a 4-byte patch that, when appended to the current CRC, produces
-        ``desired_crc``.
-        """
-        # Build a reverse lookup map: high byte -> first table index.
-        reverse_table = {}
-        for i in range(len(crc32_table)):
-            high_byte = (crc32_table[i] >> 24) & 0xFF
-            if high_byte not in reverse_table:
-                reverse_table[high_byte] = i
-
-        crc_idx = [0] * 4
-        iter_crc = ~desired_crc
-
-        for j in range(3, -1, -1):
-            target_high_byte = (iter_crc >> 24) & 0xFF
-            crc_idx[j] = reverse_table.get(target_high_byte, 0)
-            iter_crc = (iter_crc ^ crc32_table[crc_idx[j]]) << 8
-
-        crc = ~self.crc_
-        patch_bytes = bytearray(4)
-
-        for j in range(4):
-            patch_bytes[j] = (crc ^ crc_idx[j]) & 0xFF
-            crc = (crc >> 8) ^ crc32_table[patch_bytes[j] ^ (crc & 0xFF)]
-
-        return bytes(patch_bytes)
 
 
 def main() -> None: ...
