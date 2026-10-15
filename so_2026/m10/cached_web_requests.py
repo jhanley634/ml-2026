@@ -7,11 +7,16 @@
 import logging
 from http.cookiejar import Cookie, CookiePolicy
 from typing import TYPE_CHECKING
+from urllib.request import Request
 
+from beartype import beartype
+from requests.cookies import MockRequest
 from requests_cache import CachedSession
 
 if TYPE_CHECKING:
     from urllib.request import Request
+
+    from requests.cookies import MockRequest
 
 logging.basicConfig(level="INFO")
 
@@ -21,11 +26,12 @@ uniq = {
 }
 
 
+@beartype
 class BlockAll(CookiePolicy):
     netscape = True
     rfc2965 = hide_cookie2 = False
 
-    def set_ok(self, cookie: Cookie, request: Request) -> bool:
+    def set_ok(self, cookie: Cookie, request: MockRequest | Request) -> bool:
         assert self
         assert cookie
         assert request
