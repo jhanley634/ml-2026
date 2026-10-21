@@ -1,4 +1,9 @@
 
+localhost:8080 {
+    root * /usr/share/caddy
+    file_server
+}
+
 hello.sector6.net {
     root * /usr/share/caddy
     file_server
