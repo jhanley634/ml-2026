@@ -1,0 +1,10 @@
+
+hello.sector6.net {
+    root * /usr/share/caddy
+    file_server
+}
+
+hello1.sector6.net {
+    root * /usr/share/caddy
+    file_server
+}
