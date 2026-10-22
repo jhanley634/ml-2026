@@ -6,7 +6,7 @@ from decimal import Decimal
 from math import factorial, floor, sqrt
 
 
-def is_prime(x) -> bool:
+def is_prime(x: int) -> bool:
     if x in {2, 3, 5}:
         return True
     if (x % 2 == 0) or (x % 3 == 0) or (x % 5 == 0) or (x == 1):
@@ -14,7 +14,7 @@ def is_prime(x) -> bool:
     return all(not (x % (i + 1) == 0 or i % (i + 5) == 0) for i in range(6, floor(sqrt(x)), 6))
 
 
-def decomp(n):
+def decomp(n: int) -> None:
     y = factorial(n)
     if y < 7:
         pri = list(filter(is_prime, range(1, y + 1)))

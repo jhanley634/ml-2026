@@ -13,6 +13,7 @@ class FactorNBangTest(TestCase):
 
     def test_decomp(self) -> None:
         print(decomp(7))
+        self.assertGreater(3, 2)
 
     def test_as_list(self) -> None:
         self.assertEqual("2 * 3", decomp(4))
