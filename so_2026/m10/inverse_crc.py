@@ -53,7 +53,7 @@ def find_matching_crc(
     if e_index is None:
         raise ValueError(hex(f3))  # could not find table entry for f3 byte {f3:#04x}
     e_entry = crc32_table[e_index]
-    e3 = (e_entry >> 24) & 0xFF
+    (e_entry >> 24) & 0xFF
     e2 = (e_entry >> 16) & 0xFF
     e1 = (e_entry >> 8) & 0xFF
     e0 = e_entry & 0xFF
@@ -63,7 +63,7 @@ def find_matching_crc(
     if d_index is None:
         raise ValueError  # could not find table entry for d3 byte {d3:#04x}
     d_entry = crc32_table[d_index]
-    d3_ = (d_entry >> 24) & 0xFF
+    (d_entry >> 24) & 0xFF
     d2 = (d_entry >> 16) & 0xFF
     d1 = (d_entry >> 8) & 0xFF
     d0 = d_entry & 0xFF
@@ -73,7 +73,7 @@ def find_matching_crc(
     if c_index is None:
         raise ValueError  # could not find table entry  for c3 byte {c3:#04x}
     c_entry = crc32_table[c_index]
-    c3_ = (c_entry >> 24) & 0xFF
+    (c_entry >> 24) & 0xFF
     c2 = (c_entry >> 16) & 0xFF
     c1 = (c_entry >> 8) & 0xFF
     c0 = c_entry & 0xFF
@@ -83,7 +83,7 @@ def find_matching_crc(
     if b_index is None:
         raise ValueError  # could not find table entry for b3 byte {b3:#04x}
     b_entry = crc32_table[b_index]
-    b3_ = (b_entry >> 24) & 0xFF
+    (b_entry >> 24) & 0xFF
     b2 = (b_entry >> 16) & 0xFF
     b1 = (b_entry >> 8) & 0xFF
     b0 = b_entry & 0xFF

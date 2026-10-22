@@ -6,17 +6,12 @@ from decimal import Decimal
 from math import factorial, floor, sqrt
 
 
-def is_prime(x):
-    if x == 2 or x == 3 or x == 5:
+def is_prime(x) -> bool:
+    if x in {2, 3, 5}:
         return True
     if (x % 2 == 0) or (x % 3 == 0) or (x % 5 == 0) or (x == 1):
         return False
-    for i in range(6, floor(sqrt(x)), 6):
-        if x % (i + 1) == 0:
-            return False
-        elif i % (i + 5) == 0:
-            return False
-    return True
+    return all(not (x % (i + 1) == 0 or i % (i + 5) == 0) for i in range(6, floor(sqrt(x)), 6))
 
 
 def decomp(n):
@@ -29,7 +24,7 @@ def decomp(n):
     b = 0
     for i in pri:
         while y % i == 0:
-            y = y // i
+            y //= i
             b += 1
             a[i] = b
             b = 0
@@ -40,11 +35,11 @@ def decomp(n):
         else:
             c = str(list(a.keys()))
     elif len(list(a.keys())) > 1:
-        if a[list(a.keys())[0]] > 1:
-            c = str(list(a.keys())[0]) + "^" + str(a[list(a.keys())[0]])
+        if a[next(iter(a.keys()))] > 1:
+            c = str(next(iter(a.keys()))) + "^" + str(a[next(iter(a.keys()))])
 
-        elif a[list(a.keys())[0]] == 1:
-            c = str(list(a.keys())[0])
+        elif a[next(iter(a.keys()))] == 1:
+            c = str(next(iter(a.keys())))
         for key in list(a.keys())[1:]:
             if a[key] != 1:
                 c += " * " + str(key) + "^" + str(a[key])
