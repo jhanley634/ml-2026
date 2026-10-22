@@ -14,7 +14,7 @@ def is_prime(x: int) -> bool:
     return all(not (x % (i + 1) == 0 or i % (i + 5) == 0) for i in range(6, floor(sqrt(x)), 6))
 
 
-def decomp(n: int) -> None:
+def decomp(n: int) -> str:
     y = factorial(n)
     if y < 7:
         pri = list(filter(is_prime, range(1, y + 1)))
@@ -28,6 +28,11 @@ def decomp(n: int) -> None:
             b += 1
             a[i] = b
             b = 0
+    return format_factors(a)
+
+
+def format_factors(a: dict[int, int]) -> str:
+    c = "1"
     if len(list(a.keys())) == 1:
         if list(a.values()) != [1]:
 

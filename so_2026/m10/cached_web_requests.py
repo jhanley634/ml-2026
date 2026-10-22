@@ -6,7 +6,7 @@
 
 import logging
 from http.cookiejar import Cookie, CookiePolicy
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, cast
 
 from requests_cache import CachedSession
 
@@ -14,6 +14,7 @@ if TYPE_CHECKING:
     from urllib.request import Request
 
     from requests.cookies import MockRequest
+    from requests_cache.backends.sqlite import SQLiteCache
 
 logging.basicConfig(level="INFO")
 
@@ -39,7 +40,8 @@ codes = ["Q41", "Q712", "Q96", "Q115", "Q902"]
 def main() -> None:
     session = CachedSession()
     session.cookies.set_policy(BlockAll())
-    cache_size = session.cache.count()
+    cache = cast("SQLiteCache", session.cache)
+    cache_size = cache.count()
     from_cache = 0
 
     for code in codes:
@@ -52,7 +54,7 @@ def main() -> None:
 
     print("requests:  ", len(codes))
     print("from cache:", from_cache)
-    print("stored:    ", session.cache.count() - cache_size)
+    print("stored:    ", cache.count() - cache_size)
 
 
 if __name__ == "__main__":
