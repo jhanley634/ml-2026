@@ -60,7 +60,7 @@ FONT = cv2.FONT_HERSHEY_SIMPLEX
 
 
 # Queue to hold frames for face detection
-frame_queue: Queue[Any] = Queue(maxsize=2)  # Limit queue size to avoid excessive memory usage
+frame_queue: Queue[Any] = Queue(maxsize=2)
 
 
 @dataclass
@@ -133,7 +133,7 @@ def face_finder() -> None:
 
     # Start the face detection thread
     detection_thread = Thread(target=face_detection_thread, args=(stop_event,))
-    detection_thread.daemon = True  # Allow the program to exit even if the thread is running
+    detection_thread.daemon = True  # Lets us exit even if the thread is running
     detection_thread.start()
     want_gray = False
 

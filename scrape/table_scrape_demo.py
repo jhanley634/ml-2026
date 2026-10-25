@@ -44,7 +44,7 @@ def _downcase(s: str) -> str:
 
 
 def extract_table(url: str) -> pd.DataFrame:
-    headers = {"User-Agent": ("Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)")}
+    headers = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7)"}
     response = requests.get(url, headers=headers)
     response.raise_for_status()
     df = pd.read_html(StringIO(response.text))[0][:-1]

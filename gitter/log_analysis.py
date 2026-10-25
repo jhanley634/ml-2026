@@ -44,7 +44,9 @@ def parse_commit_line(line: str) -> tuple[datetime, str]:
     return timestamp, commit_message
 
 
-def mark_intervals(commit_timestamps: Iterable[tuple[datetime, str]]) -> dict[datetime, int]:
+def mark_intervals(
+    commit_timestamps: Iterable[tuple[datetime, str]],
+) -> dict[datetime, int]:
     """Mark each active interval with its number of commits."""
     activity: dict[datetime, int] = defaultdict(int)
 

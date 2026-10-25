@@ -23,7 +23,9 @@ if TYPE_CHECKING:
     from numpy.typing import NDArray
 
 
-def generate_decay_events(size: int = 100) -> tuple[NDArray[np.int32], NDArray[np.int32]]:
+def generate_decay_events(
+    size: int = 100,
+) -> tuple[NDArray[np.int32], NDArray[np.int32]]:
 
     rng = np.random.default_rng(seed=42)
 

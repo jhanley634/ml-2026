@@ -2,7 +2,27 @@
 # zruff: file-ignore[complex-structure, too-many-branches, too-many-locals, too-many-statements]
 import zlib
 
-from so_2026.m10.inverse_crc_table import crc32_table
+
+def _gen_revtable(poly: int) -> list[int]:
+    """
+    Generate a reversed CRC table for a given polynomial.
+    The algorithm matches the one used in the Julia module.
+    """
+    table: list[int] = [0] * 256
+    for index in range(256):
+        crc = index << 24
+        for _ in range(8):
+            if crc & 0x80000000:
+                crc = ((crc ^ poly) << 1) + 1
+            else:
+                crc <<= 1
+        table[index] = crc & 0xFFFFFFFF
+    return table
+
+
+# Pre-compute the reversed table for the standard CRC-32 polynomial.
+REV_TABLE32 = _gen_revtable(0xEDB88320)
+crc32_table = REV_TABLE32
 
 
 def calc_crc(data: bytes | bytearray, *, verbose: bool = False) -> int:
