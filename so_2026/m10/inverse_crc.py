@@ -2,6 +2,8 @@
 # zruff: file-ignore[complex-structure, too-many-branches, too-many-locals, too-many-statements]
 import zlib
 
+MASK32 = 0xFFFF_FFFF
+
 
 def _gen_revtable(poly: int) -> list[int]:
     """
@@ -12,18 +14,18 @@ def _gen_revtable(poly: int) -> list[int]:
     for index in range(256):
         crc = index << 24
         for _ in range(8):
-            if crc & 0x80000000:
-                crc = ((crc ^ poly) << 1) + 1
+            is_msb_set = (crc & 0x80000000) != 0
+            if is_msb_set:
+                crc = ((crc ^ poly) << 1) | 1
             else:
                 crc <<= 1
+            crc &= MASK32
         table[index] = crc & 0xFFFFFFFF
     return table
 
 
 # Pre-compute the reversed table for the standard CRC-32 polynomial.
 REV_TABLE32 = _gen_revtable(0xEDB88320)
-
-MASK32 = 0xFFFFFFFF
 
 
 def calc_crc(data: bytes | bytearray, *, verbose: bool = False) -> int:
@@ -58,7 +60,7 @@ def find_matching_crc(
     prefix_bytes = bytes(msg[:-4])
     existing_crc = calc_crc(prefix_bytes) & MASK32
 
-    crc = (target_crc ^ existing_crc) ^ MASK32
+    crc = target_crc ^ existing_crc
     patch = [0] * 4
     temp_crc = crc & MASK32
 
