@@ -7,11 +7,15 @@ from math import factorial, floor, sqrt
 
 
 def is_prime(x: int) -> bool:
+
+    def test_1_or_5(x: int, i: int) -> bool:
+        return x % (i + 1) == 0 or i % (i + 5) == 0
+
     if x in {2, 3, 5}:
         return True
     if (x % 2 == 0) or (x % 3 == 0) or (x % 5 == 0) or (x == 1):
         return False
-    return all(not (x % (i + 1) == 0 or i % (i + 5) == 0) for i in range(6, floor(sqrt(x)), 6))
+    return all(not test_1_or_5(x, i) for i in range(6, floor(sqrt(x)), 6))
 
 
 def decomp(n: int) -> str:

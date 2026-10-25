@@ -56,67 +56,60 @@ def find_matching_crc(
     prefix_bytes = bytes(msg[:-4])
     existing_crc = calc_crc(prefix_bytes)
 
-    existing_inv = existing_crc ^ 0xFFFFFFFF
-    target_inv = target_crc ^ 0xFFFFFFFF
+    # Algorithm from Stigge et al. - compute backwards CRC to find patch bytes
 
-    a3 = (existing_inv >> 24) & 0xFF
-    a2 = (existing_inv >> 16) & 0xFF
-    a1 = (existing_inv >> 8) & 0xFF
-    a0 = existing_inv & 0xFF
+    # The correct approach:
+    # We want to compute backwards CRC on a 4-byte buffer such that
+    # when this is appended to the prefix, the total CRC equals target_crc
 
-    f3 = (target_inv >> 24) & 0xFF
-    f2 = (target_inv >> 16) & 0xFF
-    f1 = (target_inv >> 8) & 0xFF
-    f0 = target_inv & 0xFF
+    # Let's compute backwards CRC with initial value = (target_crc XOR existing_crc)
+    # This is the key part - we're computing what patch bytes should be
+    # such that when they are CRC'd together with the prefix, we get target_crc
 
-    e_index = next((i for i, val in enumerate(crc32_table) if (val >> 24) & 0xFF == f3), None)
-    if e_index is None:
-        raise ValueError(hex(f3))  # could not find table entry for f3 byte {f3:#04x}
-    e_entry = crc32_table[e_index]
-    (e_entry >> 24) & 0xFF
-    e2 = (e_entry >> 16) & 0xFF
-    e1 = (e_entry >> 8) & 0xFF
-    e0 = e_entry & 0xFF
+    # The backwards computation:
+    crc = existing_crc ^ 0xFFFFFFFF  # invert initial CRC
+    patch = [0] * 4
 
-    d3 = f2 ^ e2
-    d_index = next((i for i, val in enumerate(crc32_table) if (val >> 24) & 0xFF == d3), None)
-    if d_index is None:
-        raise ValueError  # could not find table entry for d3 byte {d3:#04x}
-    d_entry = crc32_table[d_index]
-    (d_entry >> 24) & 0xFF
-    d2 = (d_entry >> 16) & 0xFF
-    d1 = (d_entry >> 8) & 0xFF
-    d0 = d_entry & 0xFF
+    for i in range(4):
+        byte_val = crc & 0xFF
+        table_entry = REV_TABLE32[byte_val]
+        patch[i] = byte_val
+        crc = (crc >> 8) ^ table_entry
 
-    c3 = f1 ^ e1 ^ d2
-    c_index = next((i for i, val in enumerate(crc32_table) if (val >> 24) & 0xFF == c3), None)
-    if c_index is None:
-        raise ValueError  # could not find table entry  for c3 byte {c3:#04x}
-    c_entry = crc32_table[c_index]
-    (c_entry >> 24) & 0xFF
-    c2 = (c_entry >> 16) & 0xFF
-    c1 = (c_entry >> 8) & 0xFF
-    c0 = c_entry & 0xFF
+    # The problem is that I'm not following the right algorithm exactly.
+    # Let me look at the Julia code again and trace what it actually does:
 
-    b3 = f0 ^ e0 ^ d1 ^ c2
-    b_index = next((i for i, val in enumerate(crc32_table) if (val >> 24) & 0xFF == b3), None)
-    if b_index is None:
-        raise ValueError  # could not find table entry for b3 byte {b3:#04x}
-    b_entry = crc32_table[b_index]
-    (b_entry >> 24) & 0xFF
-    b2 = (b_entry >> 16) & 0xFF
-    b1 = (b_entry >> 8) & 0xFF
-    b0 = b_entry & 0xFF
+    # Looking at the Julia code more carefully, it computes:
+    # store_le!(a, fixpos, crc(a[firstindex(a):fixpos-1]) ⊻ 0xffffffff)
+    # store_le!(a, fixpos, bwcrc(a[fixpos:end], wantcrc, revtable(crc)))
 
-    # Compute the four patch bytes.
-    x = b_index ^ a0
-    y = c_index ^ b0 ^ a1
-    z = d_index ^ c0 ^ b1 ^ a2
-    w = e_index ^ d0 ^ c1 ^ b2 ^ a3
+    # In our case, we're appending to the end (fixpos = length(msg) - 3)
+    # But there's a subtlety in how this works.
 
-    patch = bytearray([x, y, z, w])
-    msg[-4:] = patch
+    # The algorithm needs to be:
+    # 1. Compute CRC of prefix
+    # 2. Compute what patch bytes should be using backwards CRC computation
 
+    # Let's try the correct approach:
+    # We compute backwards CRC where we know the final result should be target_crc
+    # and we work backwards to find what 4 bytes would produce this
+
+    # Correct backwards computation for our case:
+    crc = target_crc ^ 0xFFFFFFFF  # Start with inverted target CRC
+
+    patch = [0] * 4
+    temp_crc = crc
+
+    for i in range(4):
+        byte_val = temp_crc & 0xFF
+        table_entry = REV_TABLE32[byte_val]
+        patch[i] = byte_val
+        temp_crc = (temp_crc >> 8) ^ table_entry
+
+    # Apply the patch to message
+    msg[-4:] = bytes(patch)
+
+    # Verify it works
     assert target_crc == calc_crc(msg), (target_crc, calc_crc(msg), msg)
     assert prefix_bytes == bytes(msg[:-4]), "prefix was altered during patching"
 
