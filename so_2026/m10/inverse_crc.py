@@ -1,5 +1,3 @@
-#! /usr/bin/env python
-# zruff: file-ignore[complex-structure, too-many-branches, too-many-locals, too-many-statements]
 import zlib
 
 MASK32 = 0xFFFF_FFFF
@@ -25,7 +23,7 @@ def _gen_revtable(poly: int) -> list[int]:
 
 
 # Pre-compute the reversed table for the standard CRC-32 polynomial.
-REV_TABLE32 = _gen_revtable(0xEDB88320)
+_REV_TABLE32 = _gen_revtable(0xEDB88320)
 
 
 def calc_crc(data: bytes | bytearray, *, verbose: bool = False) -> int:
@@ -39,9 +37,19 @@ def calc_crc(data: bytes | bytearray, *, verbose: bool = False) -> int:
     return crc
 
 
-def _bytes_from_crc(crc: int) -> tuple[int, int, int, int]:
+def bytes_from_crc(crc: int) -> tuple[int, int, int, int]:
     """Return the 4 little-endian bytes of a CRC value."""
     return crc & 0xFF, (crc >> 8) & 0xFF, (crc >> 16) & 0xFF, (crc >> 24) & 0xFF
+
+
+def bwcrc(a: bytes | bytearray, crc: int) -> int:
+    """Backward CRC calculation used by the inverse CRC algorithm."""
+    crc &= MASK32
+    crc ^= MASK32
+    for i in range(len(a) - 1, -1, -1):
+        byte_val = a[i]
+        crc = ((crc << 8) ^ _REV_TABLE32[(crc >> 24) & 0xFF] ^ byte_val) & MASK32
+    return crc
 
 
 def find_matching_crc(
@@ -49,34 +57,21 @@ def find_matching_crc(
     msg: bytearray,
 ) -> bytearray:
     """
-    Mutates msg in-place, giving it a suffix that makes the CRC match a target value.
-
-    The final four bytes of `msg` are replaced with bytes that make the CRC work out.
+    Mutates msg in-place, replacing its last 4 bytes with values that make
+    the CRC of the entire message equal to target_crc.
     """
     # Algorithm from Stigge et al.
     if len(msg) <= 4:
         raise ValueError  # msg must be longer than 4 bytes
 
-    prefix_bytes = bytes(msg[:-4])
-    existing_crc = calc_crc(prefix_bytes) & MASK32
+    target_crc &= MASK32
 
-    crc = target_crc ^ existing_crc
-    patch = [0] * 4
-    temp_crc = crc & MASK32
+    prefix = msg[:-4]
+    prefix_crc = (calc_crc(prefix) ^ MASK32) & MASK32
+    msg[-4:] = bytes_from_crc(prefix_crc)
 
-    for i in range(4):
-        byte_val = temp_crc & 0xFF
-        table_entry = REV_TABLE32[byte_val]
-        patch[i] = byte_val
-        temp_crc = ((temp_crc >> 8) ^ table_entry) & MASK32
-
-    msg[-4:] = bytes(patch)
+    suffix = msg[-4:]
+    new_crc = bwcrc(suffix, target_crc)
+    msg[-4:] = bytes_from_crc(new_crc)
 
     return msg
-
-
-def main() -> None: ...
-
-
-if __name__ == "__main__":
-    main()
