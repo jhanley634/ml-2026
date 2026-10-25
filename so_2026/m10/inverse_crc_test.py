@@ -1,3 +1,4 @@
+import random
 import unittest
 
 from so_2026.m10.inverse_crc import calc_crc, find_matching_crc
@@ -24,3 +25,12 @@ class InverseCrcTest(unittest.TestCase):
         print(find_matching_crc(M0_CRC, m1))
 
         self.assertGreater(3, 2)
+
+    def test_find_matching_crc_property_based(self) -> None:
+        msg = b"'Twas brillig and the slithey toves did gyre and gimble in the wabe."
+        expected = calc_crc(msg)
+        while len(msg) > 4:
+            new_msg = find_matching_crc(expected, bytearray(msg))
+            print(new_msg)
+            # self.assertEqual(expected, calc_crc(new_msg))
+            msg = msg[:-1]
