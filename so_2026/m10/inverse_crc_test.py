@@ -1,6 +1,7 @@
 import unittest
 
 from so_2026.m10.inverse_crc import bwcrc, bytes_from_crc, calc_crc, find_matching_crc
+from so_2026.m10.inverse_crc_at_offset import find_matching_crc_at_offset
 
 M0 = b"0hello"  # this is message M0
 M0_CRC = 1_166_735_253
@@ -50,3 +51,13 @@ class InverseCrcTest(unittest.TestCase):
             new_msg = find_matching_crc(expected, bytearray(msg))
             self.assertEqual(expected, calc_crc(new_msg))
             msg = msg[:-1]
+
+    def test_find_matching_crc_at_offset(self, *, verbose: bool = False) -> None:
+        msg = b"'Twas brillig and the slithey toves did gyre and gimble in the wabe"
+        expected = calc_crc(msg + b"?")
+        for i in range(len(msg) - 3):
+            new_msg = find_matching_crc_at_offset(expected, bytearray(msg), i)
+            self.assertNotEqual(new_msg, msg)
+            if verbose:
+                print(i, new_msg)
+            self.assertEqual(expected, calc_crc(new_msg))

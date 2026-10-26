@@ -12,13 +12,14 @@ def _gen_revtable(poly: int) -> list[int]:
     for index in range(256):
         crc = index << 24
         for _ in range(8):
-            is_msb_set = (crc & 0x80000000) != 0
-            if is_msb_set:
+            if crc & 0x8000_0000:
                 crc = ((crc ^ poly) << 1) | 1
             else:
                 crc <<= 1
             crc &= MASK32
-        table[index] = crc & 0xFFFFFFFF
+
+        table[index] = crc
+
     return table
 
 
@@ -44,7 +45,6 @@ def bytes_from_crc(crc: int) -> tuple[int, int, int, int]:
 
 def bwcrc(a: bytes | bytearray, crc: int) -> int:
     """Backward CRC calculation used by the inverse CRC algorithm."""
-    crc &= MASK32
     crc ^= MASK32
     for i in range(len(a) - 1, -1, -1):
         byte_val = a[i]
@@ -61,13 +61,11 @@ def find_matching_crc(
     the CRC of the entire message equal to target_crc.
     """
     # Algorithm from Stigge et al.
-    if len(msg) <= 4:
+    if len(msg) < 4:
         raise ValueError  # msg must be longer than 4 bytes
 
-    target_crc &= MASK32
-
     prefix = msg[:-4]
-    prefix_crc = (calc_crc(prefix) ^ MASK32) & MASK32
+    prefix_crc = calc_crc(prefix) ^ MASK32
     msg[-4:] = bytes_from_crc(prefix_crc)
 
     suffix = msg[-4:]
