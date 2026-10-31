@@ -3,14 +3,14 @@ import time
 from contextlib import asynccontextmanager
 from typing import TYPE_CHECKING
 
-from sqlalchemy import Column, ForeignKey, Integer, String, select
+from sqlalchemy import Column, ForeignKey, Integer, String, delete, select
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.orm import declarative_base, relationship
+from sqlalchemy.orm import DeclarativeBase, relationship
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator
@@ -30,7 +30,6 @@ class DbMgr:
 
 @asynccontextmanager
 async def get_session() -> AsyncGenerator[AsyncSession]:
-    """Convenience async session manager."""
     async_session_factory = async_sessionmaker(bind=await DbMgr.get_engine())
     async with async_session_factory() as sess:
         try:
@@ -40,7 +39,8 @@ async def get_session() -> AsyncGenerator[AsyncSession]:
             await sess.close()
 
 
-Base: declarative_base = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 class Author(Base):
@@ -71,25 +71,32 @@ async def init_db() -> None:
         await conn.run_sync(Base.metadata.create_all)
 
 
-async def add_player_of_games() -> None:
+async def add_book(author: str, title: str) -> None:
     async with get_session() as session:
-        author = await session.execute(
-            select(Author).where(Author.fname == "Iain M.", Author.lname == "Banks")
+        fname, lname = author.rsplit(maxsplit=1)
+        q = select(Author).where(
+            Author.fname == fname,
+            Author.lname == lname,
         )
-        author = author.scalar_one_or_none()
+        author_row = (await session.execute(q)).scalar_one_or_none()
 
-        if author is None:
-            author = Author(fname="Iain M.", lname="Banks")
-            session.add(author)
+        if author_row is None:
+            author_row = Author(fname=fname, lname=lname)
+            session.add(author_row)
             await session.flush()
 
-        book = Book(title="The Player of Games", author=author)
+        book = Book(title=title, author=author_row)
         session.add(book)
 
 
 async def main() -> None:
     await init_db()
-    await add_player_of_games()
+    async with get_session() as sess:
+        await sess.execute(delete(Book))
+
+    await add_book("Iain M. Banks", "Consider Phlebas")
+    await add_book("Iain M. Banks", "The Player of Games")
+    await add_book("Isaac Asimov", "Foundation")
 
 
 if __name__ == "__main__":

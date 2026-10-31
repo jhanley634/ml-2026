@@ -3,44 +3,43 @@
 # Retrieved 2026-10-26, License - CC BY-SA 4.0
 
 import asyncio
-import time
 import uuid
 from contextlib import asynccontextmanager
+from time import time
 from typing import TYPE_CHECKING
 
-from sqlalchemy import JSON, UUID, Column, Engine, Integer, String, __version__, update
+import sqlalchemy as sa
+from sqlalchemy import JSON, UUID, Column, Integer, String, update
 from sqlalchemy.ext.asyncio import (
     AsyncEngine,
     AsyncSession,
     async_sessionmaker,
     create_async_engine,
 )
-from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy.sql import literal
 
 if TYPE_CHECKING:
-    from sqlalchemy.orm.decl_api import DeclarativeMeta
+    from collections.abc import AsyncGenerator
 
-assert __version__ == "2.1.6"
+assert sa.__version__ == "2.1.6"
 
-
-DATABASE_URL = "sqlite+aiosqlite:///tmp/atomic.db?uri=true&echo=true"
+DATABASE_URL = "sqlite+aiosqlite:////tmp/atomic.db"
 
 
 class DbMgr:
-    _engine: Engine | None = None  # singleton
+    _engine: AsyncEngine | None = None  # singleton
 
     @classmethod
-    def get_engine(cls) -> Engine:
+    async def get_engine(cls) -> AsyncEngine:
         if cls._engine is None:
             cls._engine = create_async_engine(DATABASE_URL, future=True)
         return cls._engine
 
 
 @asynccontextmanager
-async def get_session() -> AsyncSession:
-    """Convenience async session manager."""
-    async_session_factory = async_sessionmaker(bind=DbMgr.get_engine(), expire_on_commit=False)
+async def get_session() -> AsyncGenerator[AsyncSession]:
+    async_session_factory = async_sessionmaker(bind=await DbMgr.get_engine())
     async with async_session_factory() as sess:
         try:
             yield sess
@@ -49,7 +48,8 @@ async def get_session() -> AsyncSession:
             await sess.close()
 
 
-Base: DeclarativeMeta = declarative_base()
+class Base(DeclarativeBase):
+    pass
 
 
 class GroupChatMember(Base):
@@ -60,11 +60,11 @@ class GroupChatMember(Base):
     user_id = Column(UUID(as_uuid=True), nullable=False)
     role = Column(JSON, nullable=True)
     group_key = Column(String, nullable=True)
-    created_at = Column(Integer, default=lambda: int(time.time()))
+    created_at = Column(Integer, default=lambda: int(time()))
     updated_at = Column(
         Integer,
-        default=lambda: int(time.time()),
-        onupdate=lambda: int(time.time()),
+        default=lambda: int(time()),
+        onupdate=lambda: int(time()),
     )
 
 
@@ -72,8 +72,8 @@ async def add_group_member_session_group_key(
     session: AsyncSession,
     group_id: int,
     user_id: int,
-    user_session_id: uuid.UUID,
-    session_group_key: tuple,
+    user_session_id: str,
+    session_group_key: str,
 ) -> None:
     query = (
         update(GroupChatMember)
@@ -87,33 +87,18 @@ async def add_group_member_session_group_key(
         )
     )
     await session.execute(query)
-    await session.commit()
-
-
-async def async_db_session() -> AsyncEngine | Engine:
-    engine = await async_sessionmaker(bind=DbMgr.get_engine())
-    print(type(engine))
-    return engine
 
 
 async def init_db() -> None:
-    async_engine = DbMgr.get_engine()
-    await async_engine.run_sync(Base.metadata.create_all)
+    async_engine = await DbMgr.get_engine()
+    async with async_engine.begin() as conn:
+        await conn.run_sync(Base.metadata.create_all)
 
 
 async def main() -> None:
-
-    # engine = create_async_engine("postgresql+asyncpg://user:password@localhost/dbname")
-
     await init_db()
-
-    async with AsyncSession(bind=DbMgr.get_engine()) as sess:
-
-        stmt = (
-            update(GroupChatMember)
-            .where(GroupChatMember.id == 1)
-            .values(json_data={"key": "value"})
-        )
+    async with get_session() as sess:
+        stmt = update(GroupChatMember).where(GroupChatMember.id == 1).values(role={"key": "value"})
         await sess.execute(stmt)
         await sess.commit()
 
@@ -121,7 +106,7 @@ async def main() -> None:
             session=sess,
             group_id=123,
             user_id=456,
-            user_session_id=uuid.UUID("12345678-1234-5678-1234-567812345678"),
+            user_session_id=str(uuid.UUID("12345678-1234-5678-1234-567812345678")),
             session_group_key="some_key",
         )
 
