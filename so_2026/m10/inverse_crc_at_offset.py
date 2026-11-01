@@ -1,4 +1,6 @@
-from so_2026.m10.inverse_crc import MASK32, bwcrc, bytes_from_crc, calc_crc
+from zlib import crc32
+
+from so_2026.m10.inverse_crc import MASK32, bwcrc, bytes_from_crc
 
 
 def find_matching_crc_at_offset(
@@ -13,7 +15,7 @@ def find_matching_crc_at_offset(
     if len(msg) < offset + 4:
         raise ValueError
 
-    prefix_crc = calc_crc(msg[:offset]) ^ MASK32
+    prefix_crc = crc32(msg[:offset]) ^ MASK32
 
     msg[offset : offset + 4] = bytes_from_crc(prefix_crc)
 
