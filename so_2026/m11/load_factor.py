@@ -1,4 +1,5 @@
 from array import array
+from collections import Counter
 
 import mmh3
 from sympy import primerange
@@ -13,6 +14,7 @@ class HashSet:
         self.load_factor = load_factor
         self.capacity = 1
         self.size = 0  # no elements stored, yet
+        self.chain_length = Counter([0])
 
         primes = array("L", primerange(120_000))
         for p in primes:
@@ -25,19 +27,29 @@ class HashSet:
     def _hash(self, key: str) -> int:
         return mmh3.hash(key) % self.capacity
 
+    def _put1(self, key: str) -> int:
+        """Stores key, and returns the probing chain length."""
+        assert self.size < self.capacity
+        idx = self._hash(key)
+        probes = 0
+        while self.arr[idx] != EMPTY:
+            if self.arr[idx] == key:
+                return probes  # key already exists
+            idx = (idx + 1) % self.capacity  # linear probing
+            probes += 1
+
+        self.arr[idx] = key
+        self.size += 1
+        return probes
+
     def put(self, key: str) -> None:
         assert key
         if self.size + 1 >= self.load_factor * self.capacity:
             self._resize()
 
-        idx = self._hash(key)
-        while self.arr[idx] != EMPTY:
-            if self.arr[idx] == key:
-                return  # key already exists, so do nothing
-            idx = (idx + 1) % self.capacity  # linear probing
-
-        self.arr[idx] = key
-        self.size += 1
+        probes = self._put1(key)
+        self.chain_length[probes] += 1
+        # print({i: self.chain_length[i] for i in range(10)})
 
     def _resize(self) -> None:
         old_arr = self.arr
