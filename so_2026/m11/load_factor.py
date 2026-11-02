@@ -41,7 +41,7 @@ class HashSet:
 
     def _resize(self) -> None:
         old_arr = self.arr
-        self.capacity *= 2
+        self.capacity = int(1 + 1.1 * self.capacity)  # or double it: self.capacity *= 2
         self.arr = [EMPTY for _ in range(self.capacity)]
         self.size = 0
 
