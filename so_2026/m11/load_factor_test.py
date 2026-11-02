@@ -1,8 +1,11 @@
 import re
 import unittest
+from array import array
 from pathlib import Path
 
+import mmh3
 from requests_cache import CachedSession
+from sympy import primerange
 
 TEMP = Path("/tmp")
 LEXICON_URL = "https://github.com/drewtuley/WordLadder/raw/713cb88/brit-a-z.txt"
@@ -25,7 +28,7 @@ valid_re = re.compile(r"^[a-z-]+$")  # Mostly this discards "'", and also SPACE.
 
 def get_words() -> list[str]:
     words = _get_lexicon().read_text().split("\n")
-    assert 79_766 == len(words), len(words)
+    assert len(words) == 79_766, len(words)
     return list(filter(valid_re.search, words))
 
 
@@ -38,3 +41,13 @@ class LoadFactorTest(unittest.TestCase):
             ["zygotes", "zymurgy"],
             words[-2:],
         )
+
+    def test_murmur(self) -> None:
+        lexicon = _get_lexicon()
+        d = mmh3.hash(lexicon.read_text())
+        self.assertEqual(-2_103_894_192, d)
+
+    def test_primes(self) -> None:
+        primes = array("L", primerange(120_000))
+        self.assertEqual(11_301, len(primes))
+        self.assertEqual(642_361_192, sum(primes))
