@@ -7,7 +7,7 @@ import mmh3
 from requests_cache import CachedSession
 from sympy import primerange
 
-from so_2026.m11.load_factor import HashSet
+from so_2026.m11.load_factor import EMPTY, HashSet
 
 TEMP = Path("/tmp")
 LEXICON_URL = "https://github.com/drewtuley/WordLadder/raw/713cb88/brit-a-z.txt"
@@ -60,3 +60,18 @@ class LoadFactorTest(unittest.TestCase):
 
         assert s
         self.assertEqual(5, 2 + 3)
+
+    def test_put(self) -> None:
+        s = HashSet(10)
+        s.put("apple")
+        s.put("banana")
+        s.put("cherry")
+
+        self.assertIn("apple", s.arr)
+        self.assertIn("banana", s.arr)
+        self.assertIn("cherry", s.arr)
+
+        s.put("apple")  # Adding duplicate
+        self.assertEqual(s.size, 3)
+
+        self.assertEqual(s.arr.count(EMPTY), s.capacity - s.size)
