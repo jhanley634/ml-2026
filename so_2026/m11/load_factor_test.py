@@ -7,6 +7,8 @@ import mmh3
 from requests_cache import CachedSession
 from sympy import primerange
 
+from so_2026.m11.load_factor import HashSet
+
 TEMP = Path("/tmp")
 LEXICON_URL = "https://github.com/drewtuley/WordLadder/raw/713cb88/brit-a-z.txt"
 
@@ -51,3 +53,10 @@ class LoadFactorTest(unittest.TestCase):
         primes = array("L", primerange(120_000))
         self.assertEqual(11_301, len(primes))
         self.assertEqual(642_361_192, sum(primes))
+
+    def test_hash_set(self) -> None:
+        words = get_words()
+        s = HashSet(len(words))
+
+        assert s
+        self.assertEqual(5, 2 + 3)
