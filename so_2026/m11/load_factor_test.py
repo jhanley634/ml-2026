@@ -75,3 +75,17 @@ class LoadFactorTest(unittest.TestCase):
         self.assertEqual(s.size, 3)
 
         self.assertEqual(s.arr.count(EMPTY), s.capacity - s.size)
+
+    def test_get(self) -> None:
+        s = HashSet(10)
+        s.put("apple")
+        s.put("banana")
+        s.put("cherry")
+
+        self.assertTrue(s.get("apple"))
+        self.assertTrue(s.get("banana"))
+        self.assertTrue(s.get("cherry"))
+        self.assertFalse(s.get("durian"))
+
+        s.put("apple")  # Adding duplicate
+        self.assertTrue(s.get("apple"))

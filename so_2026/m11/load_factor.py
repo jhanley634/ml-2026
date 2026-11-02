@@ -47,3 +47,11 @@ class HashSet:
 
         for key in old_arr:
             self.put(key)
+
+    def get(self, key: str) -> bool:
+        idx = self._hash(key)
+        while self.arr[idx] != EMPTY:
+            if self.arr[idx] == key:
+                return True
+            idx = (idx + 1) % self.capacity
+        return False
