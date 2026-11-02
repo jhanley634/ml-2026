@@ -27,8 +27,11 @@ lint: ruff-check
 	$(ACTIVATE) && mypy $(STRICT) .
 	$(ACTIVATE) && ty check
 
+COVERAGE = --cov --cov-report=term-missing
+
 test:
 	$(ACTIVATE) && python -m unittest */*/*_test.py so_2026/m??/*/*_test.py
+	$(ACTIVATE) && pytest $(COVERAGE) so_2026/m11/*_test.py
 
 CACHES := .mypy_cache/ .pyre/ .pytype/ .ruff_cache/
 clean-caches:

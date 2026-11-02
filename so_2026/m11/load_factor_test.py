@@ -61,31 +61,19 @@ class LoadFactorTest(unittest.TestCase):
         assert s
         self.assertEqual(5, 2 + 3)
 
-    def test_put(self) -> None:
-        s = HashSet(10)
-        s.put("apple")
-        s.put("banana")
-        s.put("cherry")
-
-        self.assertIn("apple", s.arr)
-        self.assertIn("banana", s.arr)
-        self.assertIn("cherry", s.arr)
-
-        s.put("apple")  # Adding duplicate
-        self.assertEqual(s.size, 3)
-
-        self.assertEqual(s.arr.count(EMPTY), s.capacity - s.size)
-
     def test_get(self) -> None:
-        s = HashSet(10)
-        s.put("apple")
-        s.put("banana")
-        s.put("cherry")
+        for n in range(10):
+            s = HashSet(n)
+            s.put("apple")
+            s.put("banana")
+            s.put("cherry")
 
-        self.assertTrue(s.get("apple"))
-        self.assertTrue(s.get("banana"))
-        self.assertTrue(s.get("cherry"))
-        self.assertFalse(s.get("durian"))
+            self.assertTrue(s.get("apple"))
+            self.assertTrue(s.get("banana"))
+            self.assertTrue(s.get("cherry"))
+            self.assertFalse(s.get("durian"))
 
-        s.put("apple")  # Adding duplicate
-        self.assertTrue(s.get("apple"))
+            s.put("apple")  # Adding duplicate
+            self.assertTrue(s.get("apple"))
+            self.assertEqual(3, s.size)
+            self.assertEqual(s.arr.count(EMPTY), s.capacity - s.size)

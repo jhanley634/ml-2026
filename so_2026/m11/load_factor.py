@@ -27,7 +27,7 @@ class HashSet:
 
     def put(self, key: str) -> None:
         assert key
-        if self.size >= self.load_factor * self.capacity:
+        if self.size + 1 >= self.load_factor * self.capacity:
             self._resize()
 
         idx = self._hash(key)
@@ -46,7 +46,8 @@ class HashSet:
         self.size = 0
 
         for key in old_arr:
-            self.put(key)
+            if key != EMPTY:
+                self.put(key)
 
     def get(self, key: str) -> bool:
         idx = self._hash(key)

@@ -63,9 +63,10 @@ class InverseCrcTest(unittest.TestCase):
                 print(i, new_msg)
             self.assertEqual(expected, crc32(new_msg))
 
-    def test_single_find_matching_crc_at_offset(self) -> None:
+    def test_single_find_matching_crc_at_offset(self, *, verbose: bool = False) -> None:
         m1 = b"left turn then park"
         d = crc32(m1)
         m2 = find_matching_crc_at_offset(d, bytearray(b"rightturn then park"), 5)
-        print(f"{m1=}\n{m2=}")
         self.assertEqual(d, crc32(m2))
+        if verbose:
+            print(f"{m1=}\n{m2=}")
