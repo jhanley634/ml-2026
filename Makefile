@@ -23,9 +23,10 @@ ruff-check:
 	$(ACTIVATE) && $(BLACK) . && ruff check --preview --fix
 lint: ruff-check
 	$(ACTIVATE) && isort .
-	$(ACTIVATE) && pyright .
-	$(ACTIVATE) && mypy $(STRICT) .
 	$(ACTIVATE) && ty check
+	$(ACTIVATE) && unset PYTHONPATH && pyrefly check --summary=none .
+	$(ACTIVATE) && mypy $(STRICT) .
+	$(ACTIVATE) && pyright .
 
 COVERAGE = --cov --cov-report=term-missing
 
