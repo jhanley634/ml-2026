@@ -18,42 +18,32 @@ def is_prime(x: int) -> bool:
     return all(not test_1_or_5(x, i) for i in range(6, floor(sqrt(x)), 6))
 
 
+def count_prime_power_in_factorial(n: int, p: int) -> int:
+    count = 0
+    power = p
+    while power <= n:
+        count += n // power
+        power *= p
+    return count
+
+
 def decomp(n: int) -> str:
-    y = factorial(n)
-    if y < 7:
-        pri = list(filter(is_prime, range(1, y + 1)))
-    else:
-        pri = list(filter(is_prime, range(1, floor(Decimal(y).sqrt() + 1))))
+    y = floor(1 + sqrt(n))
+    pri = list(filter(is_prime, range(2, y + 1)))
+
     a = {}
-    b = 0
     for i in pri:
-        while y % i == 0:
-            y //= i
-            b += 1
-            a[i] = b
-            b = 0
+        a[i] = count_prime_power_in_factorial(n, i)
+
     return format_factors(a)
 
 
 def format_factors(a: dict[int, int]) -> str:
-    c = "1"
-    if len(list(a.keys())) == 1:
-        if list(a.values()) != [1]:
-
-            c = str(a.keys()) + "^" + str(a.values())
+    factors = []
+    for key in sorted(a.keys()):
+        count = a[key]
+        if count > 1:
+            factors.extend([str(key)] * count)
         else:
-            c = str(list(a.keys()))
-    elif len(list(a.keys())) > 1:
-        if a[next(iter(a.keys()))] > 1:
-            c = str(next(iter(a.keys()))) + "^" + str(a[next(iter(a.keys()))])
-
-        elif a[next(iter(a.keys()))] == 1:
-            c = str(next(iter(a.keys())))
-        for key in list(a.keys())[1:]:
-            if a[key] != 1:
-                c += " * " + str(key) + "^" + str(a[key])
-
-            elif a[key] == 1:
-                c += " * " + str(key)
-
-    return c
+            factors.append(str(key))
+    return " * ".join(factors) if factors else "1"

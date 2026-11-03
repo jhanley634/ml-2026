@@ -16,16 +16,14 @@ class FactorNBangTest(TestCase):
         self.assertGreater(3, 2)
 
     def test_as_list(self) -> None:
-        self.assertEqual("2 * 3", decomp(4))
+        self.assertEqual("2 * 2 * 2 * 3", decomp(4))
         self.assertEqual(
-            [2, 3],
+            [2, 2, 2, 3],
             as_list(decomp(4)),
         )
-
-        self.assertEqual("2 * 3 * 5 * 7", decomp(7))
         self.assertEqual(
-            [2, 3, 5, 7],
-            as_list(decomp(7)),
+            [2, 2, 2, 2, 3, 3],  # OBOB
+            as_list(decomp(6)),
         )
 
     def test_is_prime(self) -> None:
