@@ -94,6 +94,7 @@ line_length =             100
 exclude = "^.*/.venv/"
 
 [tool.pyright]
+reportConstantRedefinition = "error"
 reportUninitializedInstanceVariable = true
 reportMissingTypeStubs = false
 exclude = [
