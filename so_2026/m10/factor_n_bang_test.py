@@ -1,6 +1,8 @@
 from math import factorial, prod
 from unittest import TestCase
 
+from sympy import primerange
+
 from so_2026.m10.factor_n_bang import decomp, fmt, is_prime
 
 
@@ -22,6 +24,7 @@ class FactorNBangTest(TestCase):
     def test_as_list(self) -> None:
         self.assertEqual(fmt(decomp(4)), "2^3 * 3")
         self.assertEqual(fmt(decomp(9)), "2^7 * 3^4 * 5 * 7")
+        self.assertEqual(fmt(decomp(16)), "2^15 * 3^6 * 5^3 * 7^2 * 11 * 13")
         for n, factors in [
             (2, [2]),
             (3, [2, 3]),
@@ -53,3 +56,9 @@ class FactorNBangTest(TestCase):
         ]
         for n, c in expected:
             self.assertEqual(c, is_prime(n))
+
+        big = 100_000
+        primes: set[int] = set(primerange(big))  # pyright: ignore[reportAssignmentType]
+        self.assertEqual(99_991, max(primes))
+        for i in range(big):
+            assert (i in primes) == is_prime(i)
