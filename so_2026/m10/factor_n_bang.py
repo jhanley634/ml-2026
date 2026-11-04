@@ -26,24 +26,23 @@ def count_prime_power_in_factorial(n: int, p: int) -> int:
     return count
 
 
-def decomp(n: int) -> str:
+def decomp(n: int) -> dict[int, int]:
     assert n >= 2
 
-    pri = list(filter(is_prime, range(2, n + 1)))
+    primes = set(filter(is_prime, range(2, n + 1)))
+    f = {}
+    for p in primes:
+        f[p] = count_prime_power_in_factorial(n, p)
 
-    a = {}
-    for i in pri:
-        a[i] = count_prime_power_in_factorial(n, i)
-
-    return format_factors(a)
+    return f
 
 
-def format_factors(a: dict[int, int]) -> str:
+def fmt(f: dict[int, int]) -> str:
     factors = []
-    for key in sorted(a.keys()):
-        count = a[key]
-        if count > 1:
-            factors.extend([str(key)] * count)
+    for p, exp in sorted(f.items()):
+        if exp > 1:
+            factors.append(f"{p}^{exp}")
         else:
-            factors.append(str(key))
-    return " * ".join(factors) if factors else "1"
+            factors.append(f"{p}")
+    assert factors
+    return " * ".join(factors)

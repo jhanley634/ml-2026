@@ -1,21 +1,27 @@
+from math import factorial, prod
 from unittest import TestCase
 
-from so_2026.m10.factor_n_bang import decomp, is_prime
-
-_no_star = str.maketrans("*", " ")
+from so_2026.m10.factor_n_bang import decomp, fmt, is_prime
 
 
-def as_list(s: str) -> list[int]:
-    return list(map(int, s.translate(_no_star).split()))
+def as_list(f: dict[int, int]) -> list[int]:
+    return [p for p, exp in sorted(f.items()) for _ in range(exp)]
 
 
 class FactorNBangTest(TestCase):
 
     def test_decomp(self) -> None:
-        self.assertEqual(decomp(4), "2 * 2 * 2 * 3")
+        self.assertEqual(
+            decomp(4),
+            {
+                2: 3,
+                3: 1,
+            },
+        )
 
     def test_as_list(self) -> None:
-        self.assertEqual("2 * 2 * 2 * 3", decomp(4))
+        self.assertEqual(fmt(decomp(4)), "2^3 * 3")
+        self.assertEqual(fmt(decomp(9)), "2^7 * 3^4 * 5 * 7")
         for n, factors in [
             (2, [2]),
             (3, [2, 3]),
@@ -26,10 +32,9 @@ class FactorNBangTest(TestCase):
             (8, [2, 2, 2, 2, 2, 2, 2, 3, 3, 5, 7]),
             (9, [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 5, 7]),
         ]:
-            self.assertEqual(
-                factors,
-                as_list(decomp(n)),
-            )
+            self.assertEqual(factors, as_list(decomp(n)))
+
+            self.assertEqual(prod(factors), factorial(n))
 
     def test_is_prime(self) -> None:
         expected = [
