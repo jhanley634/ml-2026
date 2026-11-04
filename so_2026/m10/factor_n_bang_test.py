@@ -12,19 +12,24 @@ def as_list(s: str) -> list[int]:
 class FactorNBangTest(TestCase):
 
     def test_decomp(self) -> None:
-        print(decomp(7))
-        self.assertGreater(3, 2)
+        self.assertEqual(decomp(4), "2 * 2 * 2 * 3")
 
     def test_as_list(self) -> None:
         self.assertEqual("2 * 2 * 2 * 3", decomp(4))
-        self.assertEqual(
-            [2, 2, 2, 3],
-            as_list(decomp(4)),
-        )
-        self.assertEqual(
-            [2, 2, 2, 2, 3, 3],  # OBOB
-            as_list(decomp(6)),
-        )
+        for n, factors in [
+            (2, [2]),
+            (3, [2, 3]),
+            (4, [2, 2, 2, 3]),
+            (5, [2, 2, 2, 3, 5]),
+            (6, [2, 2, 2, 2, 3, 3, 5]),
+            (7, [2, 2, 2, 2, 3, 3, 5, 7]),
+            (8, [2, 2, 2, 2, 2, 2, 2, 3, 3, 5, 7]),
+            (9, [2, 2, 2, 2, 2, 2, 2, 3, 3, 3, 3, 5, 7]),
+        ]:
+            self.assertEqual(
+                factors,
+                as_list(decomp(n)),
+            )
 
     def test_is_prime(self) -> None:
         expected = [

@@ -2,8 +2,7 @@
 # Posted by Martins Micheal, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-10-18, License - CC BY-SA 4.0
 
-from decimal import Decimal
-from math import factorial, floor, sqrt
+from math import floor, sqrt
 
 
 def is_prime(x: int) -> bool:
@@ -28,8 +27,9 @@ def count_prime_power_in_factorial(n: int, p: int) -> int:
 
 
 def decomp(n: int) -> str:
-    y = floor(1 + sqrt(n))
-    pri = list(filter(is_prime, range(2, y + 1)))
+    assert n >= 2
+
+    pri = list(filter(is_prime, range(2, n + 1)))
 
     a = {}
     for i in pri:
