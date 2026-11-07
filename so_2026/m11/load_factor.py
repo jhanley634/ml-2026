@@ -1,14 +1,23 @@
 from collections import Counter
+from enum import Enum, auto
+from typing import TYPE_CHECKING
 
 import mmh3
 import numpy as np
 from sympy import primerange
 
-EMPTY = ""
-
+if TYPE_CHECKING:
+    from collections.abc import Generator
 
 # https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_signs
 # https://en.wikipedia.org/wiki/Linear_probing#Primary_clustering
+
+EMPTY = ""
+
+
+class ProbePolicy(Enum):
+    LINEAR = auto()
+    QUADRATIC = auto()
 
 
 class HashSet:
@@ -33,6 +42,22 @@ class HashSet:
 
     def _hash(self, key: str) -> int:
         return mmh3.hash(key) % self.capacity
+
+    def _probe_generator(self, key: str, policy: ProbePolicy) -> Generator[tuple[int, int]]:
+        """
+        Generates (index, probes_count) for the probing sequence.
+        The sequence stops when capacity steps have been attempted.
+        """
+        h = self._hash(key)
+        probes = 0
+        while probes < self.capacity:
+            if policy == ProbePolicy.LINEAR:
+                idx = (h + probes) % self.capacity
+            elif policy == ProbePolicy.QUADRATIC:
+                idx = (h + probes * probes) % self.capacity
+
+            yield idx, probes
+            probes += 1
 
     def _put1(self, key: str) -> int:
         """Stores key, and returns the probing chain length."""
