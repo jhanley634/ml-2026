@@ -14,17 +14,17 @@ EMPTY = ""
 class HashSet:
     """Tracks a bunch of 'str' keys, using open addressing."""
 
+    primes = np.array(list(primerange(120_000))).astype(np.int32)
+    assert max(primes) == 119_993
+    assert len(primes) == 11_301
+
     def __init__(self, initial_num_elts: int, load_factor: float = 0.75) -> None:
         self.load_factor = load_factor
         self.capacity = 1
         self.size = 0  # no elements stored, yet
-        self.chain_length = Counter([0])
+        self.chain_length = Counter({0: 0})
 
-        primes = np.array(list(primerange(120_000))).astype(np.int32)
-        assert len(primes) == 11_301
-        assert max(primes) == 119_993
-
-        for p in primes:
+        for p in self.primes:
             if load_factor * p > initial_num_elts:
                 self.capacity = p
                 break
@@ -49,14 +49,16 @@ class HashSet:
         self.size += 1
         return probes
 
-    def put(self, key: str) -> None:
+    def put(self, key: str, *, verbose: bool = False) -> None:
         assert key
         if self.size + 1 >= self.load_factor * self.capacity:
             self._resize()
 
         probes = self._put1(key)
         self.chain_length[probes] += 1
-        # print({i: self.chain_length[i] for i in range(10)})
+        biggest = max(self.chain_length.keys())
+        if biggest > 0 and verbose:
+            print({i: self.chain_length[i] for i in range(biggest)})
 
     def _resize(self) -> None:
         old_arr = self.arr
