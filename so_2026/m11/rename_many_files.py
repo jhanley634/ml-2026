@@ -7,7 +7,7 @@ import re
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-import cappa
+import typer
 
 if TYPE_CHECKING:
     from collections.abc import Generator
@@ -16,28 +16,33 @@ TEMP = Path("/tmp")
 FILE_LIST = TEMP / "file_list.txt"
 
 
-def get_file_paths(folder: Path = Path()) -> Generator[Path]:
+def get_file_paths(folder: Path) -> Generator[Path]:
     """Same as:  find . -type f"""
     for path in folder.rglob("*"):
         if path.is_file():
             yield path
 
 
-bracket_re = re.compile(r"\[[\w=]+\]|deps/tracker-fcf")
+def store_file_paths(folder: Path, dst_file: Path) -> None:
+    """Has same effect as:  find . -type f | sort  > file_list.txt"""
+    with dst_file.open("w", encoding="utf8") as fout:
+        for path in sorted(get_file_paths(folder)):
+            fout.write(f"{path}\n")
+
+
+bracket_re = re.compile(r"\[[\w=]+\]")
 
 
 def main(folder: Path = Path()) -> None:
-
-    # Has same effect as:  find . -type f | sort  > file_list.txt
     if not FILE_LIST.exists():
-        with FILE_LIST.open("w") as fout:
-            for path in sorted(get_file_paths(folder)):
-                fout.write(f"{path}\n")
+        store_file_paths(folder, FILE_LIST)
 
     for path in FILE_LIST.read_text()[:-1].split("\n"):
         if bracket_re.search(path):
-            print(path)
+            new = bracket_re.sub("", path)
+            print(path, "\t-->   ", new)
+            Path(path).rename(new)
 
 
 if __name__ == "__main__":
-    main()
+    typer.run(main)
