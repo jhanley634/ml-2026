@@ -7,6 +7,10 @@ from sympy import primerange
 EMPTY = ""
 
 
+# https://en.wikipedia.org/wiki/Quadratic_probing#Alternating_signs
+# https://en.wikipedia.org/wiki/Linear_probing#Primary_clustering
+
+
 class HashSet:
     """Tracks a bunch of 'str' keys, using open addressing."""
 
