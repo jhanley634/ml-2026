@@ -1,7 +1,7 @@
-from array import array
 from collections import Counter
 
 import mmh3
+import numpy as np
 from sympy import primerange
 
 EMPTY = ""
@@ -20,7 +20,10 @@ class HashSet:
         self.size = 0  # no elements stored, yet
         self.chain_length = Counter([0])
 
-        primes = array("L", primerange(120_000))
+        primes = np.array(list(primerange(120_000))).astype(np.int32)
+        assert len(primes) == 11_301
+        assert max(primes) == 119_993
+
         for p in primes:
             if load_factor * p > initial_num_elts:
                 self.capacity = p
