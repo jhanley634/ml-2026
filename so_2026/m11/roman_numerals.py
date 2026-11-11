@@ -4,24 +4,24 @@
 
 import sys
 
-roman_numerals = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "M": 1000}
+roman_values = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "M": 1000}
 
 b = 0
 
-input_roman_numeral = input("Enter the Roman numeral: ")
+roman = input("Enter the Roman numeral: ")
 
 
-if len(input_roman_numeral) not in range(1, 16):
+if len(roman) not in range(1, 16):
     print("Enter a value with at least 1 and no more than 15 characters.")
     sys.exit(1)
-for i in input_roman_numeral:
-    if i not in roman_numerals:
+for i in roman:
+    if i not in roman_values:
         print("Enter valid Roman numerals instead of regular numbers.")
         sys.exit(1)
 
-for h in range(len(input_roman_numeral) - 1):
-    current = roman_numerals[input_roman_numeral[h]]
-    next_value = roman_numerals[input_roman_numeral[h + 1]]
+for h in range(len(roman) - 1):
+    current = roman_values[roman[h]]
+    next_value = roman_values[roman[h + 1]]
 
     if current < next_value:
         b -= current
