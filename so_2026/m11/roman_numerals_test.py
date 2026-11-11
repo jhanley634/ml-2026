@@ -20,3 +20,13 @@ class RomanNumeralsTest(unittest.TestCase):
             roman = to_roman(i)
             print(i, roman)
             self.assertEqual(i, roman_to_decimal(roman))
+
+    def test_validations(self) -> None:
+        long = "I" * 15
+        # roman_to_decimal(long)  # works fine
+
+        with self.assertRaises(ValueError):
+            roman_to_decimal(long + "I")
+
+        with self.assertRaises(ValueError):
+            roman_to_decimal("Hello world!")
