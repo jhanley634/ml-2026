@@ -2,6 +2,8 @@
 # Posted by Capitão Mendigão, modified by community. See post 'Timeline' for change history
 # Retrieved 2026-11-11, License - CC BY-SA 4.0
 
+import sys
+
 roman_numerals = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "M": 1000}
 
 b = 0
@@ -12,16 +14,16 @@ input_roman_numeral = input("Enter the Roman numeral: ")
 
 if input_roman_numeral == int:
     print("Invalid value!")
-    exit(1)
+    sys.exit(1)
 
 length = len(input_roman_numeral)
 
 for i in input_roman_numeral:
     if i not in roman_numerals:
         print("Enter valid Roman numerals instead of regular numbers.")
-        exit(1)
+        sys.exit(1)
 
-for x in input_roman_numeral:
+for _x in input_roman_numeral:
     current = roman_numerals[input_roman_numeral[h]]
     next_value = roman_numerals[input_roman_numeral[g]]
 
@@ -40,10 +42,10 @@ for x in input_roman_numeral:
 
 if b > 3999 or b < 1:
     print("Please enter a value within the valid range!")
-    exit(1)
+    sys.exit(1)
 
 if length < 1 or length > 15:
     print("Enter a value with at least 1 and no more than 15 characters.")
-    exit(1)
+    sys.exit(1)
 
 print(f"Your Roman numeral is {b}")
