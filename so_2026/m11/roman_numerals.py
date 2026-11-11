@@ -7,40 +7,37 @@ import sys
 roman_numerals = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "M": 1000}
 
 b = 0
-h = 0
 
 input_roman_numeral = input("Enter the Roman numeral: ")
 
 
 length = len(input_roman_numeral)
 
+if length < 1 or length > 15:
+    print("Enter a value with at least 1 and no more than 15 characters.")
+    sys.exit(1)
 for i in input_roman_numeral:
     if i not in roman_numerals:
         print("Enter valid Roman numerals instead of regular numbers.")
         sys.exit(1)
 
-for _x in input_roman_numeral:
+for h in range(len(input_roman_numeral)):
     current = roman_numerals[input_roman_numeral[h]]
     next_value = roman_numerals[input_roman_numeral[h + 1]]
 
     if current < next_value:
         b -= current
-
-    if current > next_value:
+    elif current > next_value:
         b += current
         b += next_value
 
-    if h + 1 == length - 1:
+    if h == length - 2:
         break
 
-    h += 1
 
-if b > 3999 or b < 1:
+if b not in range(1, 4_000):
     print("Please enter a value within the valid range!")
     sys.exit(1)
 
-if length < 1 or length > 15:
-    print("Enter a value with at least 1 and no more than 15 characters.")
-    sys.exit(1)
 
 print(f"Your Roman numeral is {b}")
