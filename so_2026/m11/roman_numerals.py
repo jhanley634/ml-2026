@@ -8,7 +8,6 @@ roman_numerals = {"I": 1, "V": 5, "X": 10, "L": 50, "C": 100, "M": 1000}
 
 b = 0
 h = 0
-g = 1
 
 input_roman_numeral = input("Enter the Roman numeral: ")
 
@@ -22,7 +21,7 @@ for i in input_roman_numeral:
 
 for _x in input_roman_numeral:
     current = roman_numerals[input_roman_numeral[h]]
-    next_value = roman_numerals[input_roman_numeral[g]]
+    next_value = roman_numerals[input_roman_numeral[h + 1]]
 
     if current < next_value:
         b -= current
@@ -31,10 +30,9 @@ for _x in input_roman_numeral:
         b += current
         b += next_value
 
-    if g == length - 1:
+    if h + 1 == length - 1:
         break
 
-    g += 1
     h += 1
 
 if b > 3999 or b < 1:
