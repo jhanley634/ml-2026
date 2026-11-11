@@ -12,9 +12,6 @@ g = 1
 
 input_roman_numeral = input("Enter the Roman numeral: ")
 
-if input_roman_numeral == int:
-    print("Invalid value!")
-    sys.exit(1)
 
 length = len(input_roman_numeral)
 
