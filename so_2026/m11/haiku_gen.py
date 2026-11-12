@@ -58,9 +58,6 @@ class HaikuGen:
     def __init__(self) -> None:
         self.seen: set[str] = set()  # Words already used, and so are ineligible.
         self.words = list(_get_haiku_words())
-        starter = next(self._get_starters())
-        pp(starter)
-        # for word in self.words:            print(word.syllables)
 
     def _get_starters(self) -> Generator[Word]:
         # "choose ... 5 starter words, of at least 3 different syllable lengths"
@@ -74,10 +71,39 @@ class HaikuGen:
             self.seen.add(candidate.word)
             yield candidate
 
+    def _get_word(self, max_allowed_syl: int) -> Word:
+        candidate = Word("Sentinel", PartOfSpeech.noun, syllables=99)  # won't match
+        while candidate.syllables > max_allowed_syl:
+            candidate = random.choice(self.words)
+
+        return candidate
+
+    @staticmethod
+    def _total_syl(line: list[Word]) -> int:
+        return sum(w.syllables for w in line)
+
+    def _generate_line(self, num_syl: int) -> list[Word]:
+        assert num_syl in {5, 7}
+        starter = next(self._get_starters())
+        line = [starter]
+        while self._total_syl(line) < num_syl:
+            w = self._get_word(num_syl - self._total_syl(line))
+            line.append(w)
+            self.seen.add(w.word)
+
+        return line
+
+    def generate_poem(self) -> str:
+        poem = [self._generate_line(5)]
+        poem += [self._generate_line(7)]
+        poem += [self._generate_line(5)]
+        pp(poem)
+        return ""
+
 
 def test_pos_name() -> None:
     assert str(PartOfSpeech.verb) == "verb"  # would default to "PartOfSpeech.verb"
 
 
 if __name__ == "__main__":
-    HaikuGen()
+    HaikuGen().generate_poem()
