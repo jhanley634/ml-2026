@@ -57,21 +57,18 @@ class HaikuGen:
     def _get_starters(self) -> Generator[Word]:
         # "choose ... 5 starter words, of at least 3 different syllable lengths"
         desired = random.sample(range(1, 6), 5)
-        candidate = Word("Sentinel", PartOfSpeech.noun, syllables=99)  # won't match
-        for i in range(10**6):
-
-            while candidate.syllables != desired[i % len(desired)]:
-                candidate = random.choice(self.words)
-
-            self.seen.add(candidate.word)
-            yield candidate
+        big = 10**6  # positive infinity, pretty much
+        for i in range(big):
+            candidate = random.choice(self.words)
+            if candidate.syllables == desired[i % len(desired)]:
+                self.seen.add(candidate.word)
+                yield candidate
 
     def _get_word(self, max_allowed_syl: int) -> Word:
-        candidate = Word("Sentinel", PartOfSpeech.noun, syllables=99)  # won't match
-        while candidate.syllables > max_allowed_syl:
+        while True:
             candidate = random.choice(self.words)
-
-        return candidate
+            if candidate.syllables <= max_allowed_syl:
+                return candidate
 
     @staticmethod
     def _fmt_line(line: list[Word]) -> str:
