@@ -79,6 +79,10 @@ class HaikuGen:
         return candidate
 
     @staticmethod
+    def _fmt_line(line: list[Word]) -> str:
+        return " ".join((w.word for w in line))
+
+    @staticmethod
     def _total_syl(line: list[Word]) -> int:
         return sum(w.syllables for w in line)
 
@@ -93,17 +97,26 @@ class HaikuGen:
 
         return line
 
-    def generate_poem(self) -> str:
-        poem = [self._generate_line(5)]
-        poem += [self._generate_line(7)]
-        poem += [self._generate_line(5)]
-        pp(poem)
-        return ""
+    def generate_poem(self, col_width: int = 35) -> str:
+
+        poem = list(map(self._generate_line, (5, 7, 5)))
+
+        totals = list(map(self._total_syl, poem))
+        assert totals == [5, 7, 5]
+
+        ret = ""
+        for line, total in zip(poem, totals):
+            ret += self._fmt_line(line).ljust(col_width) + f" ({total})\n"
+        return ret
 
 
 def test_pos_name() -> None:
     assert str(PartOfSpeech.verb) == "verb"  # would default to "PartOfSpeech.verb"
 
 
+def test_generate_poem() -> None:
+    assert HaikuGen().generate_poem().endswith(" (5)\n")
+
+
 if __name__ == "__main__":
-    HaikuGen().generate_poem()
+    print(HaikuGen().generate_poem())
