@@ -16,17 +16,19 @@ class RomanNumeralsTest(unittest.TestCase):
                 print(f"{i:5d}  ", to_roman(i))
 
     def test_roman_to_decimal(self) -> None:
-        for i in range(15, 4_000):
+        for i in range(1, 4_000):
             roman = to_roman(i)
-            print(i, roman)
             self.assertEqual(i, roman_to_decimal(roman))
 
     def test_validations(self) -> None:
         long = "I" * 15
-        # roman_to_decimal(long)  # works fine
-
+        roman_to_decimal(long)  # works fine, even though "III" should be the max
         with self.assertRaises(ValueError):
             roman_to_decimal(long + "I")
 
         with self.assertRaises(ValueError):
             roman_to_decimal("Hello world!")
+
+        roman_to_decimal("MMMCMXCIX")
+        with self.assertRaises(ValueError):
+            roman_to_decimal("MMMM")
