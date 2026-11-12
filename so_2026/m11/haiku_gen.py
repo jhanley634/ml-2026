@@ -7,7 +7,6 @@ import random
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
-from pprint import pp
 from typing import TYPE_CHECKING
 
 from beartype import beartype
@@ -16,7 +15,6 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
-@beartype
 class PartOfSpeech(Enum):
     adjective = auto()
     adverb = auto()
@@ -27,9 +25,6 @@ class PartOfSpeech(Enum):
     preposition = auto()
     pronoun = auto()
     verb = auto()
-
-    def __str__(self) -> str:
-        return self.name
 
 
 _STR_TO_POS = {member.name.capitalize(): member for member in PartOfSpeech}
@@ -80,7 +75,7 @@ class HaikuGen:
 
     @staticmethod
     def _fmt_line(line: list[Word]) -> str:
-        return " ".join((w.word for w in line))
+        return " ".join(w.word for w in line)
 
     @staticmethod
     def _total_syl(line: list[Word]) -> int:
@@ -105,13 +100,9 @@ class HaikuGen:
         assert totals == [5, 7, 5]
 
         ret = ""
-        for line, total in zip(poem, totals):
+        for line, total in zip(poem, totals, strict=False):
             ret += self._fmt_line(line).ljust(col_width) + f" ({total})\n"
         return ret
-
-
-def test_pos_name() -> None:
-    assert str(PartOfSpeech.verb) == "verb"  # would default to "PartOfSpeech.verb"
 
 
 def test_generate_poem() -> None:
