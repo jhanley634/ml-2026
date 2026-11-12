@@ -29,6 +29,7 @@ class RomanNumeralsTest(unittest.TestCase):
         with self.assertRaises(ValueError):
             roman_to_decimal("Hello world!")
 
-        roman_to_decimal("MMMCMXCIX")
+        self.assertEqual(3888, roman_to_decimal("MMMDCCCLXXXVIII"))  # longest valid Roman
+        self.assertEqual(3999, roman_to_decimal("MMMCMXCIX"))
         with self.assertRaises(ValueError):
             roman_to_decimal("MMMM")
