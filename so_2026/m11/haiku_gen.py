@@ -3,6 +3,7 @@
 # from https://stackoverflow.com/beta/challenges/80015893/challenge-25-count-your-syllables
 
 import json
+import random
 from dataclasses import dataclass
 from enum import Enum, auto
 from pathlib import Path
@@ -15,6 +16,7 @@ if TYPE_CHECKING:
     from collections.abc import Generator
 
 
+@beartype
 class PartOfSpeech(Enum):
     adjective = auto()
     adverb = auto()
@@ -43,7 +45,7 @@ _STR_TO_POS = {member.name.capitalize(): member for member in PartOfSpeech}
 WORD_FILE = Path("/tmp/k/haiku-words.json")
 
 
-def get_haiku_words() -> Generator[Word]:
+def _get_haiku_words() -> Generator[Word]:
     with Path(WORD_FILE).open(encoding="utf-8") as fin:
         for entry in json.load(fin):
             del entry["id"]
@@ -51,9 +53,12 @@ def get_haiku_words() -> Generator[Word]:
             yield Word(**entry)
 
 
-def main() -> None:
-    words = list(get_haiku_words())
-    pp(words)
+class HaikuGen:
+
+    def __init__(self) -> None:
+        self.words = list(_get_haiku_words())
+        starter = random.choice(self.words)
+        pp(starter)
 
 
 def test_pos_name() -> None:
@@ -61,4 +66,4 @@ def test_pos_name() -> None:
 
 
 if __name__ == "__main__":
-    main()
+    HaikuGen()
