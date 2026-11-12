@@ -32,6 +32,9 @@ class PartOfSpeech(Enum):
         return self.name
 
 
+_STR_TO_POS = {member.name.capitalize(): member for member in PartOfSpeech}
+
+
 @beartype
 @dataclass
 class Word:
@@ -40,9 +43,7 @@ class Word:
     syllables: int
 
 
-_STR_TO_POS = {member.name.capitalize(): member for member in PartOfSpeech}
-
-WORD_FILE = Path("/tmp/k/haiku-words.json")
+WORD_FILE = Path("/tmp/haiku-words.json")
 
 
 def _get_haiku_words() -> Generator[Word]:
@@ -54,11 +55,24 @@ def _get_haiku_words() -> Generator[Word]:
 
 
 class HaikuGen:
-
     def __init__(self) -> None:
+        self.seen: set[str] = set()  # Words already used, and so are ineligible.
         self.words = list(_get_haiku_words())
-        starter = random.choice(self.words)
+        starter = next(self._get_starters())
         pp(starter)
+        # for word in self.words:            print(word.syllables)
+
+    def _get_starters(self) -> Generator[Word]:
+        # "choose ... 5 starter words, of at least 3 different syllable lengths"
+        desired = random.sample(range(1, 6), 5)
+        candidate = Word("Sentinel", PartOfSpeech.noun, syllables=99)  # won't match
+        for i in range(10**6):
+
+            while candidate.syllables != desired[i % len(desired)]:
+                candidate = random.choice(self.words)
+
+            self.seen.add(candidate.word)
+            yield candidate
 
 
 def test_pos_name() -> None:
