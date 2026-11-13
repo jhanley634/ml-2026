@@ -54,23 +54,33 @@ class HaikuGen:
         self.seen: set[str] = set()  # Words already used, and so are ineligible.
         self.words = list(_get_haiku_words())
 
-    def _get_starters(self) -> Generator[Word]:
         # "choose ... 5 starter words, of at least 3 different syllable lengths"
-        desired = random.sample(range(1, 6), 5)
-        big = 10**6  # positive infinity, pretty much
-        for i in range(big):
-            candidate = random.choice(self.words)
-            if candidate.syllables == desired[i % len(desired)]:
+        self.desired = random.sample(range(1, 6), 5)
+        self.d_idx = 0
+
+    def _get_starter(self) -> Word:
+        desired = self.desired
+        while True:
+            candidate = self._choose_unseen_word()
+            if candidate.syllables == desired[self.d_idx % len(desired)]:
                 self.seen.add(candidate.word)
-                yield candidate
+                self.d_idx += 1
+                return candidate
+
+    def _choose_unseen_word(self) -> Word:
+        while True:
+            candidate = random.choice(self.words)
+            if candidate.word not in self.seen:
+                return candidate
 
     def _get_word(self, max_allowed_syl: int, pos: PartOfSpeech | None) -> Word:
         while True:
-            candidate = random.choice(self.words)
+            candidate = self._choose_unseen_word()
             good = candidate.syllables <= max_allowed_syl
             if pos:
-                good = good and candidate.part_of_speech == pos
+                good = good and (candidate.part_of_speech == pos)
             if good:
+                self.seen.add(candidate.word)
                 return candidate
 
     @staticmethod
@@ -92,13 +102,12 @@ class HaikuGen:
             pos = required_pos.pop() if required_pos else None
             w = self._get_word(num_syl - self._total_syl(line), pos)
             line.append(w)
-            self.seen.add(w.word)
 
         return line
 
     def generate_poem(self, col_width: int = 35) -> str:
 
-        starter = next(self._get_starters())
+        starter = self._get_starter()
         poem = [self._generate_line(5, starter)]
         poem += [self._generate_line(7)]
         poem += [self._generate_line(5)]
