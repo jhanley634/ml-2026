@@ -106,5 +106,11 @@ def test_generate_poem() -> None:
     assert HaikuGen().generate_poem().endswith(" (5)\n")
 
 
+def display_poems(n: int = 5) -> None:
+    gen = HaikuGen()  # Using a single generator will enforce word uniqueness across N poems
+    for _ in range(n):
+        print(gen.generate_poem(), "\n")
+
+
 if __name__ == "__main__":
-    print(HaikuGen().generate_poem())
+    display_poems()
