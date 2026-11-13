@@ -1,0 +1,5 @@
+Input: Radiance          (3)
+Input: Appreciate        (4)
+Input: Curiosity         (5)
+Input: Stone             (1)
+Input: Silver            (2)

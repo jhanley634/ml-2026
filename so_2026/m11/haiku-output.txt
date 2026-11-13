@@ -1,0 +1,38 @@
+Input: Radiance          (3)
+
+Output:
+Radiance Vast Hope                  (5)
+Sadly Signify Calm Heal             (7)
+Frail Architecture                  (5)
+
+
+Input: Appreciate        (4)
+
+Output:
+Appreciate Bright                   (5)
+Always Accelerate Rock              (7)
+Weak Stream Believe Claim           (5)
+
+
+Input: Curiosity         (5)
+
+Output:
+Curiosity                           (5)
+Willfully Personify                 (7)
+Red Slumber Through Our             (5)
+
+
+Input: Stone             (1)
+
+Output:
+Stone Dangerous Snake               (5)
+Angrily Cling Teal My Cry           (7)
+Mysterious Child                    (5)
+
+
+Input: Silver            (2)
+
+Output:
+Silver Sweet Blossom                (5)
+Carefully Walk A Glow Lake          (7)
+Remarkable Flame                    (5)
