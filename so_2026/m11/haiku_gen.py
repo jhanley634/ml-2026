@@ -98,14 +98,16 @@ class HaikuGen:
 
     def generate_poem(self, col_width: int = 35) -> str:
 
-        poem = [self._generate_line(5, next(self._get_starters()))]
+        starter = next(self._get_starters())
+        poem = [self._generate_line(5, starter)]
         poem += [self._generate_line(7)]
         poem += [self._generate_line(5)]
 
         totals = list(map(self._total_syl, poem))
         assert totals == [5, 7, 5]
 
-        ret = ""
+        ret = f"Input: {starter.word.ljust(col_width // 2)} ({starter.syllables})\n\n"
+        ret += "Output:\n"
         for line, total in zip(poem, totals, strict=False):
             ret += self._fmt_line(line).ljust(col_width) + f" ({total})\n"
         return ret
