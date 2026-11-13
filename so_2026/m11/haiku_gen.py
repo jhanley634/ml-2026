@@ -64,10 +64,13 @@ class HaikuGen:
                 self.seen.add(candidate.word)
                 yield candidate
 
-    def _get_word(self, max_allowed_syl: int) -> Word:
+    def _get_word(self, max_allowed_syl: int, pos: PartOfSpeech | None) -> Word:
         while True:
             candidate = random.choice(self.words)
-            if candidate.syllables <= max_allowed_syl:
+            good = candidate.syllables <= max_allowed_syl
+            if pos:
+                good = good and candidate.part_of_speech == pos
+            if good:
                 return candidate
 
     @staticmethod
@@ -78,12 +81,16 @@ class HaikuGen:
     def _total_syl(line: list[Word]) -> int:
         return sum(w.syllables for w in line)
 
-    def _generate_line(self, num_syl: int) -> list[Word]:
+    def _generate_line(self, num_syl: int, starter: Word | None = None) -> list[Word]:
         assert num_syl in {5, 7}
-        starter = next(self._get_starters())
-        line = [starter]
+        required_pos = [PartOfSpeech.noun, PartOfSpeech.adjective]
+        if num_syl == 7:
+            required_pos = [PartOfSpeech.verb, PartOfSpeech.adverb]
+
+        line = [starter] if starter else []
         while self._total_syl(line) < num_syl:
-            w = self._get_word(num_syl - self._total_syl(line))
+            pos = required_pos.pop() if required_pos else None
+            w = self._get_word(num_syl - self._total_syl(line), pos)
             line.append(w)
             self.seen.add(w.word)
 
@@ -91,7 +98,9 @@ class HaikuGen:
 
     def generate_poem(self, col_width: int = 35) -> str:
 
-        poem = list(map(self._generate_line, (5, 7, 5)))
+        poem = [self._generate_line(5, next(self._get_starters()))]
+        poem += [self._generate_line(7)]
+        poem += [self._generate_line(5)]
 
         totals = list(map(self._total_syl, poem))
         assert totals == [5, 7, 5]
